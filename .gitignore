@@ -1,0 +1,8 @@
+*.json
+*.xlsx
+__pycache__
+statics/photos/*
+statics/sertificates/*
+statics/tests/*
+.env
+myenv/
