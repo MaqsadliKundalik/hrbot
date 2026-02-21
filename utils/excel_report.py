@@ -114,7 +114,7 @@ async def generate_report() -> io.BytesIO:
         admin_groups[resume.job].append(resume)
 
     for job, resumes in admin_groups.items():
-        ws = wb.create_sheet(title=_safe_sheet_title(job))
+        ws = wb.create_sheet(title=job)
         ws.append(admin_headers)
         _style_header_row(ws, 1, len(admin_headers))
         _set_column_widths(ws, admin_widths)
@@ -160,7 +160,7 @@ async def generate_report() -> io.BytesIO:
         teacher_groups[resume.subject].append(resume)
 
     for subject, resumes in teacher_groups.items():
-        ws = wb.create_sheet(title=_safe_sheet_title(subject))
+        ws = wb.create_sheet(title=subject)
         ws.append(teacher_headers)
         _style_header_row(ws, 1, len(teacher_headers))
         _set_column_widths(ws, teacher_widths)
