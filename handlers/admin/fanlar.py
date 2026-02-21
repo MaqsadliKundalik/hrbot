@@ -178,13 +178,13 @@ async def update_vacancy_text(message: Message, state: FSMContext):
 @router.message(F.text, AdminSubjectStates.update_vacancy_text)
 async def update_vacancy_text(message: Message, state: FSMContext):
     state_data = await state.get_data()
-    vacancy = await VacanciesText.get_or_none(id=state_data['selected_vacancy_id'])
     subject = await Subjects.get_or_none(id=state_data['selected_subject_id'])
     if not subject:
         await message.answer("Bunday fan mavjud emas!")
         await state.set_state(AdminSubjectStates.select_fan)
         await message.answer("Fanlardan birini tanlang yoki yangisini qo'shing.", reply_markup=fanlar_lst_btn([sub.name for sub in await Subjects.all()], is_admin=True))
         return
+    vacancy = await VacanciesText.filter(name=subject.name).first()
     if not vacancy:
         await VacanciesText.create(name=subject.name, text=message.text)
     else:
