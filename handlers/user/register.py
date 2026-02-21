@@ -125,6 +125,9 @@ async def register_profile_pic(message: Message, state: FSMContext, bot: Bot):
         if message.text == "O'tkazib yuborish":
             profile_pic_file_id = ""
             profile_pic_path = ""
+        else:
+            await message.answer("Iltimos, suratingizni yuboring.")
+            return
     elif message.photo:
         profile_pic_file_id = message.photo[-1].file_id
         file = await bot.get_file(message.photo[-1].file_id)
