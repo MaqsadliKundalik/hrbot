@@ -125,11 +125,14 @@ async def register_profile_pic(message: Message, state: FSMContext, bot: Bot):
         if message.text == "O'tkazib yuborish":
             profile_pic_file_id = ""
             profile_pic_path = ""
-    else:
+    elif message.photo:
         profile_pic_file_id = message.photo[-1].file_id
         file = await bot.get_file(message.photo[-1].file_id)
         await bot.download_file(file.file_path, f"statics/photos/{message.from_user.id}.{file.file_path.split('.')[-1]}")
         profile_pic_path = f"statics/photos/{message.from_user.id}.{file.file_path.split('.')[-1]}"
+    else:
+        await message.answer("Iltimos, suratingizni yuboring.")
+        return
     await TgUser.create(
                 tg_id=message.from_user.id,
                 full_name=state_data['full_name'],
