@@ -1,12 +1,15 @@
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.drawing.image import Image as XLImage
 from database.models import AdminsResume, TeacherResume, TgUser, QuizAnswers, Quizs
 import io
+import os
 from collections import defaultdict
+from PIL import Image as PILImage
 
 
-HEADER_FONT = Font(bold=True, color="FFFFFF", size=11)
+HEADER_FONT = Font(bold=True, color="FFFFFF", size=10)
 HEADER_FILL = PatternFill(start_color="2E4057", end_color="2E4057", fill_type="solid")
 ALT_FILL = PatternFill(start_color="F2F7FF", end_color="F2F7FF", fill_type="solid")
 CENTER = Alignment(horizontal="center", vertical="center", wrap_text=True)
@@ -17,6 +20,12 @@ THIN_BORDER = Border(
     top=Side(style="thin", color="CCCCCC"),
     bottom=Side(style="thin", color="CCCCCC"),
 )
+
+# Rasm o'lchami (piksel)
+IMG_SIZE = 55
+ROW_HEIGHT = 45   # piksel (Excel units ≈ pt, 1pt ≈ 0.75px → 45px ≈ 34pt)
+ROW_HEIGHT_PT = 34
+IMG_COL_WIDTH = 8  # Excel column width units
 
 
 def _style_header_row(ws, row: int, col_count: int):
@@ -41,11 +50,46 @@ def _style_data_row(ws, row: int, col_count: int):
 def _set_column_widths(ws, widths: list):
     for i, width in enumerate(widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = width
-    ws.row_dimensions[1].height = 30
+    ws.row_dimensions[1].height = 28
+
+
+def _get_photo_path(tg_id: int) -> str | None:
+    """statics/photos/{tg_id}.jpg yo'lini qaytaradi, mavjud bo'lsa."""
+    path = f"statics/photos/{tg_id}.jpg"
+    return path if os.path.exists(path) else None
+
+
+def _make_thumb(path: str, size: int = IMG_SIZE) -> io.BytesIO | None:
+    """Rasmni kvadrat thumbnail qilib BytesIO qaytaradi."""
+    try:
+        img = PILImage.open(path).convert("RGB")
+        img.thumbnail((size, size), PILImage.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=85)
+        buf.seek(0)
+        return buf
+    except Exception:
+        return None
+
+
+def _insert_photo(ws, row: int, col: int, tg_id: int):
+    """Rasm mavjud bo'lsa Excelga joylashtiradi."""
+    path = _get_photo_path(tg_id)
+    if not path:
+        return
+    thumb = _make_thumb(path)
+    if not thumb:
+        return
+    img = XLImage(thumb)
+    img.width = IMG_SIZE
+    img.height = IMG_SIZE
+    col_letter = get_column_letter(col)
+    # Rasmni katakka to'g'ri joylashtirish uchun offset (2pt)
+    img.anchor = f"{col_letter}{row}"
+    ws.add_image(img)
 
 
 def _safe_sheet_title(title: str) -> str:
-    """Excel sheet nomi 31 belgidan oshmasligi va maxsus belgilar bo'lmasligi kerak."""
     for ch in r'\/*?:[]\r\n':
         title = title.replace(ch, " ")
     return title[:31]
@@ -53,41 +97,40 @@ def _safe_sheet_title(title: str) -> str:
 
 async def generate_report() -> io.BytesIO:
     wb = Workbook()
-    # Birinchi bo'sh sheetni keyinroq o'chirish uchun saqlab qo'yamiz
     default_sheet = wb.active
 
-    # ── AdminsResume: har bir job uchun alohida sheet ─────────────────────────
     admin_headers = [
-        "№", "Telegram ID", "Ism Familiya", "Telefon", "Tug'ilgan sana",
-        "Xorijiy til", "Til darajasi",
+        "№", "Rasm", "Ism Familiya", "Telegram ID", "Telefon",
+        "Tug'ilgan sana", "Xorijiy til", "Til darajasi",
         "Tajriba", "Ish vaqti",
-        "Oxirgi ish joyi", "Ketish sababi", "Oxirgi ish joyi telefoni",
+        "Oxirgi ish joyi", "Ketish sababi", "Tel (ish joyi)",
         "Ariza sanasi",
     ]
-    admin_widths = [5, 18, 25, 18, 15, 18, 15, 15, 15, 25, 25, 22, 20]
+    admin_widths = [4, IMG_COL_WIDTH, 24, 16, 18, 14, 16, 14, 14, 14, 22, 22, 18, 18]
 
     admins = await AdminsResume.all().prefetch_related("user").order_by("job", "id")
-
-    # job bo'yicha guruhlash
     admin_groups: dict[str, list] = defaultdict(list)
     for resume in admins:
         admin_groups[resume.job].append(resume)
 
     for job, resumes in admin_groups.items():
-        ws = wb.create_sheet(title=job)
+        ws = wb.create_sheet(title=_safe_sheet_title(job))
         ws.append(admin_headers)
         _style_header_row(ws, 1, len(admin_headers))
         _set_column_widths(ws, admin_widths)
 
         for idx, resume in enumerate(resumes, start=1):
             user: TgUser = resume.user
-            phones = ", ".join(v for v in user.phone_numbers.values() if v) if user.phone_numbers else "-"
+            phones = ", ".join(v for v in user.phone_numbers.values() if v) if user.phone_numbers else "—"
+            excel_row = idx + 1
+
             row_data = [
                 idx,
-                user.tg_id,
+                "",   # Rasm ustuni — bo'sh, ustiga rasm tushadi
                 user.full_name,
+                user.tg_id,
                 phones,
-                str(user.birth_date) if user.birth_date else "-",
+                str(user.birth_date) if user.birth_date else "—",
                 resume.foreign_language,
                 resume.foreign_language_level,
                 resume.experience,
@@ -95,51 +138,53 @@ async def generate_report() -> io.BytesIO:
                 resume.last_work_place,
                 resume.why_leave_work,
                 resume.last_work_place_phone,
-                resume.created_at.strftime("%d.%m.%Y %H:%M") if resume.created_at else "-",
+                resume.created_at.strftime("%d.%m.%Y %H:%M") if resume.created_at else "—",
             ]
             ws.append(row_data)
-            _style_data_row(ws, idx + 1, len(admin_headers))
+            _style_data_row(ws, excel_row, len(admin_headers))
+            ws.row_dimensions[excel_row].height = ROW_HEIGHT_PT
+            _insert_photo(ws, excel_row, 2, user.tg_id)
 
-    # ── TeacherResume: har bir subject uchun alohida sheet ───────────────────
     teacher_headers = [
-        "№", "Telegram ID", "Ism Familiya", "Telefon", "Tug'ilgan sana",
-        "Tajriba", "Ish vaqti", "Maosh (so'm)",
+        "№", "Rasm", "Ism Familiya", "Telegram ID", "Telefon",
+        "Tug'ilgan sana", "Tajriba", "Ish vaqti", "Maosh (so'm)",
         "Sertifikatlar",
-        "Oxirgi ish joyi", "Ketish sababi", "Oxirgi ish joyi telefoni",
+        "Oxirgi ish joyi", "Ketish sababi", "Tel (ish joyi)",
         "Ariza sanasi",
     ]
-    teacher_widths = [5, 18, 25, 18, 15, 15, 15, 18, 35, 25, 25, 22, 20]
+    teacher_widths = [4, IMG_COL_WIDTH, 24, 16, 18, 14, 13, 13, 16, 32, 22, 22, 18, 18]
 
     teachers = await TeacherResume.all().prefetch_related("user").order_by("subject", "id")
-
-    # subject bo'yicha guruhlash
     teacher_groups: dict[str, list] = defaultdict(list)
     for resume in teachers:
         teacher_groups[resume.subject].append(resume)
 
     for subject, resumes in teacher_groups.items():
-        ws = wb.create_sheet(title=subject)
+        ws = wb.create_sheet(title=_safe_sheet_title(subject))
         ws.append(teacher_headers)
         _style_header_row(ws, 1, len(teacher_headers))
         _set_column_widths(ws, teacher_widths)
 
         for idx, resume in enumerate(resumes, start=1):
             user: TgUser = resume.user
-            phones = ", ".join(v for v in user.phone_numbers.values() if v) if user.phone_numbers else "-"
+            phones = ", ".join(v for v in user.phone_numbers.values() if v) if user.phone_numbers else "—"
             certs = (
                 "\n".join(
                     f"{s.get('name', '?')} — {s.get('ball', '?')}"
                     for s in resume.sertificates
                 )
                 if resume.sertificates
-                else "-"
+                else "—"
             )
+            excel_row = idx + 1
+
             row_data = [
                 idx,
-                user.tg_id,
+                "",   # Rasm
                 user.full_name,
+                user.tg_id,
                 phones,
-                str(user.birth_date) if user.birth_date else "-",
+                str(user.birth_date) if user.birth_date else "—",
                 resume.experience,
                 resume.working_time,
                 resume.salary,
@@ -147,19 +192,16 @@ async def generate_report() -> io.BytesIO:
                 resume.last_work_place,
                 resume.why_leave_work,
                 resume.last_work_place_phone,
-                resume.created_at.strftime("%d.%m.%Y %H:%M") if resume.created_at else "-",
+                resume.created_at.strftime("%d.%m.%Y %H:%M") if resume.created_at else "—",
             ]
             ws.append(row_data)
-            _style_data_row(ws, idx + 1, len(teacher_headers))
+            _style_data_row(ws, excel_row, len(teacher_headers))
+            ws.row_dimensions[excel_row].height = ROW_HEIGHT_PT
+            _insert_photo(ws, excel_row, 2, user.tg_id)
 
-    # ── Test natijalari ───────────────────────────────────────────────────────
     ws_quizzes = wb.create_sheet(title="Test natijalari")
-
-    quiz_headers = [
-        "№", "Telegram ID", "Ism Familiya", "Fan", "To'g'ri javoblar",
-    ]
+    quiz_headers = ["№", "Telegram ID", "Ism Familiya", "Fan", "To'g'ri javoblar"]
     quiz_widths = [5, 18, 25, 25, 18]
-
     ws_quizzes.append(quiz_headers)
     _style_header_row(ws_quizzes, 1, len(quiz_headers))
     _set_column_widths(ws_quizzes, quiz_widths)
@@ -172,18 +214,10 @@ async def generate_report() -> io.BytesIO:
     for idx, answer in enumerate(quiz_answers, start=1):
         user: TgUser = answer.user
         quiz: Quizs = answer.quiz
-        subject_name = quiz.subject.name if quiz.subject else "-"
-        row_data = [
-            idx,
-            user.tg_id,
-            user.full_name,
-            subject_name,
-            answer.correct_answers,
-        ]
-        ws_quizzes.append(row_data)
+        subject_name = quiz.subject.name if quiz.subject else "—"
+        ws_quizzes.append([idx, user.tg_id, user.full_name, subject_name, answer.correct_answers])
         _style_data_row(ws_quizzes, idx + 1, len(quiz_headers))
 
-    # Dastlabki bo'sh sheetni o'chirish
     wb.remove(default_sheet)
 
     buffer = io.BytesIO()

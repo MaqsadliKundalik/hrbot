@@ -133,18 +133,22 @@ async def register_profile_pic(message: Message, state: FSMContext, bot: Bot):
     else:
         await message.answer("Iltimos, suratingizni yuboring.")
         return
-    await TgUser.create(
-                tg_id=message.from_user.id,
-                full_name=state_data['full_name'],
-                phone_numbers={"phone_number1": state_data['phone_number1'], "phone_number2": state_data['phone_number2']},
-                birth_date=datetime.strptime(state_data['birth_date'], "%d.%m.%Y").date(),
-                born_address=state_data['born_address'],
-                live_address=state_data['live_address'],
-                work_or_study_address=state_data['work_or_study_address'],
-                source_of_income=state_data['source_of_income'],
-                profile_pic_file_id=profile_pic_file_id,
-                profile_pic_path=profile_pic_path
-            )
-            
+    try:
+        await TgUser.create(
+                    tg_id=message.from_user.id,
+                    full_name=state_data['full_name'],
+                    phone_numbers={"phone_number1": state_data['phone_number1'], "phone_number2": state_data['phone_number2']},
+                    birth_date=datetime.strptime(state_data['birth_date'], "%d.%m.%Y").date(),
+                    born_address=state_data['born_address'],
+                    live_address=state_data['live_address'],
+                    work_or_study_address=state_data['work_or_study_address'],
+                    source_of_income=state_data['source_of_income'],
+                    profile_pic_file_id=profile_pic_file_id,
+                    profile_pic_path=profile_pic_path
+                )
+    except Exception as e:
+        await message.answer("Ro'yxatdan o'tishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", reply_markup=main_menu_users_btn(is_registered=False))
+        await state.clear()
+        return
     await message.answer("Ro'yxatdan o'tish yakunlandi!", reply_markup=main_menu_users_btn(is_registered=True))
     await state.clear()
