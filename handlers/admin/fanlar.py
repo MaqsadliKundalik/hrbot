@@ -215,22 +215,34 @@ async def add_sertifikat(message: Message, state: FSMContext):
 async def add_sertifikat_balls(message: Message, state: FSMContext):
     state_data = await state.get_data()
     sertificate = await Sertificates.get_or_none(id=state_data['selected_sertificate_id'])
+    subject = await Subjects.get_or_none(id=state_data['selected_subject_id'])
+    if not subject:
+        await message.answer("Bunday fan mavjud emas!")
+        await state.set_state(AdminSubjectStates.select_fan)
+        await message.answer("Fanlardan birini tanlang yoki yangisini qo'shing.", reply_markup=fanlar_lst_btn([sub.name for sub in await Subjects.all()], is_admin=True))
+        return
     if not sertificate:
-        await message.answer("Bunday sertifikat mavjud emas!", reply_markup=sertifikatlar_lst_btn([s.name for s in await Sertificates.filter(subject=state_data['selected_subject'])], is_admin=True))
+        await message.answer("Bunday sertifikat mavjud emas!", reply_markup=sertifikatlar_lst_btn([s.name for s in await Sertificates.filter(subject=subject)], is_admin=True))
         await state.set_state(AdminSubjectStates.select_sertifikat)
         return
     if not sertificate.ball_list:
         await message.answer("Bu sertifikatga hali ball qo'shilmadi!")
         return
-    await message.answer(f"\"{sertificate.name}\" sertifikatiga ballar qo'shildi!", reply_markup=sertifikatlar_lst_btn([s.name for s in await Sertificates.filter(subject=state_data['selected_subject'])], is_admin=True))
+    await message.answer(f"\"{sertificate.name}\" sertifikatiga ballar qo'shildi!", reply_markup=sertifikatlar_lst_btn([s.name for s in await Sertificates.filter(subject=subject)], is_admin=True))
     await state.set_state(AdminSubjectStates.select_sertifikat)
 
 @router.message(F.text, AdminSubjectStates.add_sertifikat_balls)
 async def add_sertifikat_balls(message: Message, state: FSMContext):
     state_data = await state.get_data()
     sertificate = await Sertificates.get_or_none(id=state_data['selected_sertificate_id'])
+    subject = await Subjects.get_or_none(id=state_data['selected_subject_id'])
+    if not subject:
+        await message.answer("Bunday fan mavjud emas!")
+        await state.set_state(AdminSubjectStates.select_fan)
+        await message.answer("Fanlardan birini tanlang yoki yangisini qo'shing.", reply_markup=fanlar_lst_btn([sub.name for sub in await Subjects.all()], is_admin=True))
+        return
     if not sertificate:
-        await message.answer("Bunday sertifikat mavjud emas!", reply_markup=sertifikatlar_lst_btn([s.name for s in await Sertificates.filter(subject=state_data['selected_subject'])], is_admin=True))
+        await message.answer("Bunday sertifikat mavjud emas!", reply_markup=sertifikatlar_lst_btn([s.name for s in await Sertificates.filter(subject=subject)], is_admin=True))
         await state.set_state(AdminSubjectStates.select_sertifikat)
         return
     if message.text in sertificate.ball_list:
