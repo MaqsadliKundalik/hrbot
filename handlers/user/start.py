@@ -1,3 +1,4 @@
+from database.models import TgUser
 from aiogram import Router, F
 from aiogram.types import Message
 from filters.user import IsRegisteredUser
@@ -15,15 +16,19 @@ async def start(message: Message):
 async def vacancies(message: Message):  
     await message.answer("Vakansiya turini tanlang.", reply_markup=vacancies_btn)
 
-@router.message(F.text == "Biz haqimizda", IsRegisteredUser())
+@router.message(F.text == "Biz haqimizda")
 async def about(message: Message):  
     await message.answer("Biz haqimizda")
 
-@router.message(F.text == "Bog'lanish", IsRegisteredUser())
+@router.message(F.text == "Bog'lanish")
 async def contact(message: Message):  
     await message.answer("Biz bilan bog'lanish uchun")
 
-@router.message(F.text == "Orqaga", IsRegisteredUser())
+@router.message(F.text == "Orqaga")
 async def back(message: Message, state: FSMContext):
-    await message.answer("Orqaga qaytdik!!", reply_markup=main_menu_users_btn(is_registered=True))
+    exists = await TgUser.get_or_none(tg_id=message.chat.id)
+    if exists:
+        await message.answer("Orqaga qaytdik!!", reply_markup=main_menu_users_btn(is_registered=True))
+    else:
+        await message.answer("Orqaga qaytdik!!", reply_markup=main_menu_users_btn(is_registered=False))
     await state.clear()

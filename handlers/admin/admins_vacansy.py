@@ -26,8 +26,13 @@ async def f(message: Message, state: FSMContext):
         case AdminKasbStates.update_vacancy_text:
             await state.set_state(AdminKasbStates.about_kasb)
             state_data = await state.get_data()
-            vacancy_text = state_data["vacancy_text"]
-            await message.answer(vacancy_text.text, reply_markup=admin_kasb_detail_btn())
+            vacancy_text = await VacanciesText.get_or_none(id=state_data["vacancy_text_id"])
+            if vacancy_text:
+                await message.answer(vacancy_text.text, reply_markup=admin_kasb_detail_btn())
+            else:
+                await message.answer("Bunday kasb mavjud emas!")
+                await state.set_state(AdminKasbStates.select_kasb)
+                await message.answer("Kasblardan birini tanlang yoki yangisini qo'shing.", reply_markup=kasblar_lst_btn([sub.name for sub in await VacanciesText.all()], is_admin=True))
 
 @router.message(F.text == "Kasblar", IsAdmin())
 async def f(message: Message, state: FSMContext):
@@ -59,14 +64,14 @@ async def select_kasb(message: Message, state: FSMContext):
     if not vacancy_text:
         await message.answer("Bunday kasb mavjud emas!")
         return
-    await state.update_data(vacancy_text=vacancy_text)
+    await state.update_data(vacancy_text_id=vacancy_text.id)
     await message.answer(vacancy_text.text, reply_markup=admin_kasb_detail_btn())
     await state.set_state(AdminKasbStates.about_kasb)
 
 @router.message(F.text == "Kasbni o'chirish", AdminKasbStates.about_kasb)
 async def delete_kasb(message: Message, state: FSMContext):
     state_data = await state.get_data()
-    await state_data["vacancy_text"].delete()
+    await VacanciesText.filter(id=state_data["vacancy_text_id"]).delete()
     await message.answer("Kasb o'chirildi.", reply_markup=kasblar_lst_btn([sub.name for sub in await VacanciesText.all()], is_admin=True))
     await state.set_state(AdminKasbStates.select_kasb)
 
@@ -78,8 +83,13 @@ async def update_vacancy_text(message: Message, state: FSMContext):
 @router.message(F.text, AdminKasbStates.update_vacancy_text)
 async def update_vacancy_text(message: Message, state: FSMContext):
     state_data = await state.get_data()
-    vacancy_text = await state_data["vacancy_text"]
-    vacancy_text.text = message.text
-    await vacancy_text.save()
-    await message.answer("Vakansiya matni yangilandi.", reply_markup=admin_kasb_detail_btn())
-    await state.set_state(AdminKasbStates.about_kasb)
+    vacancy_text = await VacanciesText.get_or_none(id=state_data["vacancy_text_id"])
+    if vacancy_text:
+        vacancy_text.text = message.text
+        await vacancy_text.save()
+        await message.answer("Vakansiya matni yangilandi.", reply_markup=admin_kasb_detail_btn())
+        await state.set_state(AdminKasbStates.about_kasb)
+    else:
+        await message.answer("Bunday kasb mavjud emas!")
+        await state.set_state(AdminKasbStates.select_kasb)
+        await message.answer("Kasblardan birini tanlang yoki yangisini qo'shing.", reply_markup=kasblar_lst_btn([sub.name for sub in await VacanciesText.all()], is_admin=True))

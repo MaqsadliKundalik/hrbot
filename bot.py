@@ -1,11 +1,14 @@
-from config import BOT_TOKEN
+from config import BOT_TOKEN, REDIS_HOST, REDIS_PORT
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.redis import RedisStorage
 from handlers import router as main_router
 from logging import basicConfig, INFO
 from database import init_db, close_db
 from miidlewares.base import LongMessageMiddleware
 
-dp = Dispatcher()
+storage = RedisStorage.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}")
+
+dp = Dispatcher(storage=storage)
 
 async def main():
     bot = Bot(token=BOT_TOKEN)
