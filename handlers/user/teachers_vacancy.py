@@ -129,8 +129,11 @@ async def select_sertificate_ball(message: Message, state: FSMContext):
     await message.answer("Endi sertifikat faylini yuboring.", reply_markup=back_btn)
     await state.set_state(TeachersVacancyState.sertificate_file)
 
-@router.message(F.document, TeachersVacancyState.sertificate_file)
+@router.message(TeachersVacancyState.sertificate_file)
 async def select_sertificate_file(message: Message, state: FSMContext, bot: Bot):
+    if not message.document:
+        await message.answer("Iltimos, sertifikatni fayl ko'rinishida yuboring.")
+        return
     state_data = await state.get_data()
     sertificates = state_data.get("sertificates", [])
     sertificates.append({"name": state_data["sertificate_name"], "ball": state_data["sertificate_ball"], "file_id": message.document.file_id})

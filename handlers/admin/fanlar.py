@@ -118,8 +118,11 @@ async def update_test_file(message: Message, state: FSMContext):
     await state.set_state(AdminSubjectStates.update_quiz)
     await message.answer("Test faylini yuklang", reply_markup=back_btn)
 
-@router.message(F.document, AdminSubjectStates.update_quiz)
+@router.message(AdminSubjectStates.update_quiz)
 async def update_test_file(message: Message, state: FSMContext, bot: Bot):
+    if not message.document:
+        await message.answer("Iltimos, testni fayl ko'rinishida yuboring.")
+        return
     state_data = await state.get_data()
     subject = await Subjects.get_or_none(id=state_data['selected_subject_id'])
     if not subject:
