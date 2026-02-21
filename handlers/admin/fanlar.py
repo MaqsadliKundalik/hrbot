@@ -123,6 +123,9 @@ async def update_test_file(message: Message, state: FSMContext, bot: Bot):
     if not message.document:
         await message.answer("Iltimos, testni fayl ko'rinishida yuboring.")
         return
+    if not message.document.file_name.endswith(".xlsx"):
+        await message.answer("Iltimos, testni .xlsx formatida yuboring.")
+        return
     state_data = await state.get_data()
     subject = await Subjects.get_or_none(id=state_data['selected_subject_id'])
     if not subject:
