@@ -24,8 +24,8 @@ THIN_BORDER = Border(
 # Rasm o'lchami (piksel)
 IMG_SIZE = 55
 ROW_HEIGHT = 45   # piksel (Excel units ≈ pt, 1pt ≈ 0.75px → 45px ≈ 34pt)
-ROW_HEIGHT_PT = 34
-IMG_COL_WIDTH = 8  # Excel column width units
+ROW_HEIGHT_PT = 60
+IMG_COL_WIDTH = 12  # Excel column width units
 
 
 def _style_header_row(ws, row: int, col_count: int):
