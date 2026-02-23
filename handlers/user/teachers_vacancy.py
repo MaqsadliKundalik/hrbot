@@ -41,16 +41,16 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
             await state.set_state(TeachersVacancyState.sertificate_file)
         case TeachersVacancyState.last_work_place:
             await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
-            await state.set_state(TeachersVacancyState.last_work_place)
+            await state.set_state(TeachersVacancyState.experience)
         case TeachersVacancyState.why_leave_work:
             await message.answer("Oxirgi ishlagan tashkilotingiz nomi?", reply_markup=back_btn)
-            await state.set_state(TeachersVacancyState.why_leave_work)
+            await state.set_state(TeachersVacancyState.last_work_place)
         case TeachersVacancyState.last_work_place_phone:
             await message.answer("Oxirgi ish joyingizdan ketish sababini kiriting.", reply_markup=back_btn)
-            await state.set_state(TeachersVacancyState.last_work_place_phone)
+            await state.set_state(TeachersVacancyState.why_leave_work)
         case TeachersVacancyState.salary:
             await message.answer("Tashkilot telefon raqamini kiriting.", reply_markup=back_btn)
-            await state.set_state(TeachersVacancyState.salary)
+            await state.set_state(TeachersVacancyState.last_work_place_phone)
         case __:
             await message.answer("Orqaga qaytildi!!", reply_markup=main_menu_users_btn(is_registered=True))
             await state.clear()
