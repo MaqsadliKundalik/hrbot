@@ -36,6 +36,10 @@ async def admins_vanacies(message: Message, state: FSMContext):
 @router.message(F.text == "Adminlarga", IsRegisteredUser())
 async def admins_vanacies_start(message: Message, state: FSMContext):
     kasblar = await VacanciesText.exclude(name__in=[sub.name for sub in await Subjects.all()])
+    if not kasblar:
+        await message.answer("Hozirda adminlarga vakansiya mavjud emas!")
+        return
+
     await message.answer("Vakansiyani tanlang:", reply_markup=kasblar_lst_btn(kasblar=[kasb.name for kasb in kasblar], is_admin=False))
     await state.set_state(AdminsVacancyState.vacancy_type)
 

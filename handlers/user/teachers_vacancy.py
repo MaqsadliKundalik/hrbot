@@ -57,7 +57,11 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
 
 @router.message(F.text == "Ustozlarga", IsRegisteredUser())
 async def teachers_vacancy(message: Message, state: FSMContext):  
-    await message.answer("Fanni tanlang.", reply_markup=fanlar_lst_btn([sub.name for sub in await Subjects.all()], False))
+    subjects = await Subjects.all()
+    if not subjects:
+        await message.answer("Hozirda hech qaysi fandan vakansiya mavjud emas!")
+        return
+    await message.answer("Fanni tanlang.", reply_markup=fanlar_lst_btn([sub.name for sub in subjects], False))
     await state.set_state(TeachersVacancyState.subject)
 
 @router.message(F.text, TeachersVacancyState.subject)
@@ -147,7 +151,7 @@ async def select_sertificate_file(message: Message, state: FSMContext, bot: Bot)
     await state.set_state(TeachersVacancyState.has_sertificate)
     await message.answer("Yana sertifikatingiz bormi?", reply_markup=confirm_btn)
     
-@router.message(F.text == "Tayorman", TeachersVacancyState.ready)
+@router.message(F.text == "Tayyorman", TeachersVacancyState.ready)
 async def select_ready(message: Message, state: FSMContext, bot: Bot):
     await state.update_data(ready=message.text)
     msg = await message.answer("Test boshlanmoqda...", reply_markup=ReplyKeyboardRemove())
