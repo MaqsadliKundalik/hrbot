@@ -175,7 +175,7 @@ async def start_quizs(message_id: int, state: FSMContext, bot: Bot, chat_id: int
             *quizs.quizs[0]["options"],
         ],
         type="quiz",
-        correct_option_id=quizs.quizs[0]["answer"] - 1,
+        correct_option_id=int(quizs.quizs[0]["answer"]) - 1,
         is_anonymous=False,
     )
     state_data = await state.get_data()
@@ -215,7 +215,7 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
     if datetime.now(timezone.utc) - start_time > timedelta(seconds=60):
         return
 
-    if answer.option_ids[0] == quizs_data[quiz_index]["answer"] - 1:
+    if answer.option_ids[0] == int(quizs_data[quiz_index]["answer"]) - 1:
         await state.update_data(quiz_index=quiz_index + 1, correct_answers=state_data["correct_answers"] + 1)
     else:
         await state.update_data(quiz_index=quiz_index + 1)
@@ -247,7 +247,7 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
                 *quizs_data[quiz_index + 1]["options"],
             ],
             type="quiz",
-            correct_option_id=quizs_data[quiz_index + 1]["answer"] - 1,
+            correct_option_id=int(quizs_data[quiz_index + 1]["answer"]) - 1,
             is_anonymous=False,
         )
     
