@@ -202,7 +202,7 @@ confirm_btn.adjust(2)
 confirm_btn = confirm_btn.as_markup(resize_keyboard=True)
 
 ready_btn = ReplyKeyboardBuilder()
-ready_btn.button(text="Tayorman", style="success")
+ready_btn.button(text="Tayyorman", style="success")
 ready_btn.button(text="Orqaga", icon_custom_emoji_id="5400169738263352182")
 ready_btn.adjust(1)
 ready_btn = ready_btn.as_markup(resize_keyboard=True)

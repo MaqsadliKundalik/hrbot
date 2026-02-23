@@ -176,7 +176,7 @@ async def start_quizs(message_id: int, state: FSMContext, bot: Bot, chat_id: int
     )
     state_data = await state.get_data()
     start_time = datetime.fromisoformat(state_data["start_time"])
-    while datetime.now(timezone.utc) - start_time < timedelta(seconds=60):
+    while datetime.now(timezone.utc) - start_time < timedelta(minutes=40):
         await sleep(60)
     state_now = await state.get_state()
     state_data = await state.get_data()
@@ -230,7 +230,7 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
         if state_data["correct_answers"] >= len(quizs_data) * 0.8:
             await bot.send_message(answer.user.id, "Siz testdan o'tdingiz!")
             await state.set_state(TeachersVacancyState.experience)
-            await bot.send_message(answer.user.id, "Sohadagi tajribangiz nehca yil?")
+            await bot.send_message(answer.user.id, "Sohadagi tajribangiz necha yil?")
         else:
             await bot.send_message(answer.user.id, "Afsuski siz testdan o'tolmadingiz!", reply_markup=main_menu_users_btn(is_registered=True))
             await state.clear()
