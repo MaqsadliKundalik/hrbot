@@ -1,5 +1,4 @@
 *.json
-*.xlsx
 __pycache__
 statics/photos/*
 statics/sertificates/*

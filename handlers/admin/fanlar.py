@@ -138,7 +138,15 @@ async def update_test_file(message: Message, state: FSMContext, bot: Bot):
     file = await bot.get_file(message.document.file_id)
     await bot.download_file(file.file_path, file_path)
 
-    questions = await get_test_questions(file_path)
+    try:
+        questions = await get_test_questions(file_path)
+    except ValueError as e:
+        await message.answer(f"Xatolik:Iltimos, faylni tekshirib qayta yuboring.")
+        return
+    except Exception as e:
+        await message.answer(f"Kutilmagan xatolik: {str(e)}")
+        return
+
     await Quizs.filter(subject=subject).delete()
     await Quizs.create(
         subject=subject,

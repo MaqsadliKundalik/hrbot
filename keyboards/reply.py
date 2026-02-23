@@ -135,10 +135,11 @@ def sertifikatlar_lst_btn(sertifikatlar: list[str], is_admin: bool):
 
     if is_admin:
         markup.button(text="Yangi sertifikat qo'shish")
-        markup.button(text="Test faylini yangilash")
         markup.button(text="Vakansiya matnini yangilash")
+        markup.button(text="Test faylini yangilash")
+        markup.button(text="Shablon faylni olish")
         markup.button(text="Fanni o'chirish")
-        sizes.append(1)
+        sizes.append(2, 2, 1)
         
     markup.button(text="Orqaga", icon_custom_emoji_id="5400169738263352182")
     sizes.append(1)
