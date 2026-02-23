@@ -162,7 +162,7 @@ async def select_sertificate_file(message: Message, state: FSMContext, bot: Bot)
         await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
         return
     await state.set_state(TeachersVacancyState.has_sertificate)
-    await message.answer("Yana sertifikatingiz bormi?", reply_markup=sertifikatlar_lst_btn(ignor_sertificate_names, False))
+    await message.answer("Yana sertifikatingiz bormi?", reply_markup=confirm_btn)
     
 @router.message(F.text == "Tayyorman", TeachersVacancyState.ready)
 async def select_ready(message: Message, state: FSMContext, bot: Bot):
