@@ -139,14 +139,13 @@ def sertifikatlar_lst_btn(sertifikatlar: list[str], is_admin: bool):
         markup.button(text="Test faylini yangilash")
         markup.button(text="Shablon faylni olish")
         markup.button(text="Fanni o'chirish")
-        sizes.append(2)
-        sizes.append(2)
+        sizes.append(1)
         
     markup.button(text="Orqaga", icon_custom_emoji_id="5400169738263352182")
     sizes.append(1)
     
     markup.adjust(*sizes)
-    return markup.as_markup()
+    return markup.as_markup(resize_keyboard=True)
 
 def sertifikat_balls_lst_btn(balls: list[str], is_admin: bool, is_new : bool = False):
     markup = ReplyKeyboardBuilder()
