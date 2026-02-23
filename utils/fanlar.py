@@ -32,19 +32,22 @@ async def get_test_questions(file_path: str) -> list[dict]:
             
         question_text = str(row[0]).strip()
         options = [str(opt).strip() if opt is not None else "" for opt in row[1:5]]
-        answer = str(row[5]).strip() if row[5] is not None else ""
-
-        # Validatsiya: Variantlar bo'sh bo'lmasligi kerak
+        
         if any(not opt for opt in options):
             raise ValueError(f"Qatorda ({idx}) variantlar to'liq emas. 4 ta variant bo'lishi shart.")
-            
-        # Validatsiya: To'g'ri javob bo'sh bo'lmasligi kerak
+
+        try:
+            correct_num = int(row[5]) if row[5] is not None else None
+        except (ValueError, TypeError):
+            raise ValueError(f"Qatorda ({idx}) to'g'ri variant raqami noto'g'ri formatda. Faqat 1 dan 4 gacha raqam bo'lishi kerak.")
+
+        if correct_num is None or not (1 <= correct_num <= 4):
+            raise ValueError(f"Qatorda ({idx}) to'g'ri variant raqami 1 va 4 oralig'ida bo'lishi shart.")
+
+        answer = options[correct_num - 1]
+
         if not answer:
-            raise ValueError(f"Qatorda ({idx}) to'g'ri javob ko'rsatilmagan.")
-            
-        # Validatsiya: To'g'ri javob variantlar ichida bo'lishi kerak
-        if answer not in options:
-            raise ValueError(f"Qatorda ({idx}) to'g'ri javob variantlar ichida topilmadi.")
+            raise ValueError(f"Qatorda ({idx}) tanlangan to'g'ri variant (variant {correct_num}) bo'sh bo'lishi mumkin emas.")
 
         questions.append({
             "question": question_text,
