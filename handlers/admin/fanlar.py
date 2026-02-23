@@ -1,5 +1,5 @@
 from aiogram import Router, F, Bot
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from keyboards.reply import admin_menu, fanlar_lst_btn, sertifikatlar_lst_btn, sertifikat_balls_lst_btn, back_btn
 from states.admin import AdminSubjectStates
 from aiogram.fsm.context import FSMContext
@@ -117,6 +117,10 @@ async def select_fan(message: Message, state: FSMContext):
 async def update_test_file(message: Message, state: FSMContext):
     await state.set_state(AdminSubjectStates.update_quiz)
     await message.answer("Test faylini yuklang", reply_markup=back_btn)
+
+@router.message(F.text == "Shablon faylni olish", AdminSubjectStates.select_sertifikat)
+async def get_template_file(message: Message, state: FSMContext):
+    await message.answer_document(document=FSInputFile("template.xlsx"))
 
 @router.message(AdminSubjectStates.update_quiz)
 async def update_test_file(message: Message, state: FSMContext, bot: Bot):
