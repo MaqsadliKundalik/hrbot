@@ -140,6 +140,7 @@ def sertifikatlar_lst_btn(sertifikatlar: list[str], is_admin: bool):
         markup.button(text="Shablon faylni olish")
         markup.button(text="Fanni o'chirish")
         sizes.append(2)
+        sizes.append(2)
         
     markup.button(text="Orqaga", icon_custom_emoji_id="5400169738263352182")
     sizes.append(1)
