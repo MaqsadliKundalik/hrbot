@@ -147,9 +147,14 @@ async def select_sertificate_file(message: Message, state: FSMContext, bot: Bot)
     await state.update_data(sertificates=sertificates)
     file = await bot.get_file(message.document.file_id)
     await bot.download_file(file.file_path, destination=f"statics/sertificates/{message.document.file_id}.{message.document.file_name.split('.')[-1]}")
-    
+    ignor_sertificate_names = [sertificate["name"] for sertificate in sertificates]
+    sertificates_lst = await Sertificates.filter(subject=state_data["subject_id"]).exclude(name__in=ignor_sertificate_names)
+    if not sertificates_lst:
+        await state.set_state(TeachersVacancyState.experience)
+        await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
+        return
     await state.set_state(TeachersVacancyState.has_sertificate)
-    await message.answer("Yana sertifikatingiz bormi?", reply_markup=confirm_btn)
+    await message.answer("Yana sertifikatingiz bormi?", reply_markup=sertifikatlar_lst_btn(ignor_sertificate_names, False))
     
 @router.message(F.text == "Tayyorman", TeachersVacancyState.ready)
 async def select_ready(message: Message, state: FSMContext, bot: Bot):
