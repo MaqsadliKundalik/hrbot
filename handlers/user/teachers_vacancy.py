@@ -91,8 +91,16 @@ async def select_has_sertificate(message: Message, state: FSMContext):
     state_data = await state.get_data()
     subject = await Subjects.get_or_none(id=state_data["subject_id"])
     if message.text == "Ha":
+        ignor_sertificate_names = [sertificate["name"] for sertificate in state_data.get("sertificates", [])]
+        sertificates_lst = await Sertificates.filter(subject=subject).exclude(name__in=ignor_sertificate_names)
+        if not sertificates_lst:
+            await state.set_state(TeachersVacancyState.experience)
+            await message.answer("Afsuski sizning faningiz bo'yicha boshqa sertifikat mavjud emas.", reply_markup=back_btn)
+            await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
+            return
+
         await state.update_data(has_sertificate=True)
-        await message.answer("Sertifikatingizni tanlang.", reply_markup=sertifikatlar_lst_btn([sert.name for sert in await Sertificates.filter(subject=subject)], False))
+        await message.answer("Sertifikatingizni tanlang.", reply_markup=sertifikatlar_lst_btn([sert.name for sert in sertificates_lst], False))
         await state.set_state(TeachersVacancyState.sertificate_name)
     else:
         if state_data.get("sertificates", []) != []:
