@@ -12,6 +12,7 @@ router = Router()
 
 @router.message(F.text == "Orqaga", InAdminsResumeState())
 async def admins_vanacies(message: Message, state: FSMContext):
+
     match await state.get_state():
         case AdminsVacancyState.vacancy_type:
             await message.answer("Ortga qaytildi.", reply_markup=vacancies_btn)
@@ -25,13 +26,13 @@ async def admins_vanacies(message: Message, state: FSMContext):
         case AdminsVacancyState.foreign_language_level:
             await admins_vanacies_foreign_language(message, state)
         case AdminsVacancyState.experience:
-            await admins_vanacies_foreign_language_level(message, state)
+            await admins_vanacies_foreign_language(message, state)
         case AdminsVacancyState.last_work_place:
-            await admins_vanacies_experience(message, state)
+            await admins_vanacies_foreign_language_level(message, state)
         case AdminsVacancyState.why_leave_work:
-            await admins_vanacies_last_work_place(message, state)
+            await admins_vanacies_experience(message, state)
         case AdminsVacancyState.last_work_place_phone:
-            await admins_vanacies_why_leave_work(message, state)
+            await admins_vanacies_last_work_place(message, state)
 
 @router.message(F.text == "Adminlarga", IsRegisteredUser())
 async def admins_vanacies_start(message: Message, state: FSMContext):
