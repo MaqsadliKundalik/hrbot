@@ -57,7 +57,7 @@ async def admins_vanacies_vacancy_type(message: Message, state: FSMContext):
 
 @router.message(F.text, AdminsVacancyState.working_time)
 async def admins_vanacies_working_time(message: Message, state: FSMContext):
-    if message.text in ["09:00 - 20:00", "08:00 - 17:00", "14:00 - 20:00", "08:00 - 28:00"]:
+    if message.text in ["09:00 - 20:00", "08:00 - 17:00", "14:00 - 20:00", "08:00 - 20:00"]:
         await state.update_data(working_time=message.text)
         await message.answer("Qaysi xorijiy tillarni bilasiz?", reply_markup=back_btn)
         await state.set_state(AdminsVacancyState.foreign_language)
