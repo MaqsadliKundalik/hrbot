@@ -24,7 +24,8 @@ async def admins_vanacies(message: Message, state: FSMContext):
             await message.answer("Ish vaqtini tanlang:", reply_markup=working_time_btn)
             await state.set_state(AdminsVacancyState.working_time)
         case AdminsVacancyState.foreign_language_level:
-            await admins_vanacies_foreign_language(message, state)
+            await message.answer("Qaysi xorijiy tillarni bilasiz?", reply_markup=back_btn)
+            await state.set_state(AdminsVacancyState.foreign_language)
         case AdminsVacancyState.experience:
             await admins_vanacies_foreign_language(message, state)
         case AdminsVacancyState.last_work_place:
