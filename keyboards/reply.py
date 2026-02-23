@@ -146,7 +146,7 @@ def sertifikatlar_lst_btn(sertifikatlar: list[str], is_admin: bool):
     sizes.append(1)
     
     markup.adjust(*sizes)
-    return markup.as_markup(resize_keyboard=True)
+    return markup.as_markup()
 
 def sertifikat_balls_lst_btn(balls: list[str], is_admin: bool, is_new : bool = False):
     markup = ReplyKeyboardBuilder()
