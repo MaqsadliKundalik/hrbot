@@ -6,14 +6,14 @@ from keyboards.reply import vacancies_btn, fanlar_lst_btn, working_time_btn, con
 from database.models import Subjects, Sertificates, TeacherResume, TgUser, Quizs, QuizAnswers, VacanciesText
 from aiogram.fsm.context import FSMContext
 from states.user import TeachersVacancyState
-from filters.user import IsRegisteredUser
+from filters.user import IsRegisteredUser, InTeachersResumeState
 from datetime import datetime, timedelta, timezone
 from asyncio import sleep, create_task
 from utils import is_valid_phone
 
 router = Router()
 
-@router.message(F.text == "Orqaga", IsRegisteredUser())
+@router.message(F.text == "Orqaga", InTeachersResumeState())
 async def teachers_vacancy_back(message: Message, state: FSMContext):
     state_data = await state.get_data()
     match await state.get_state():
