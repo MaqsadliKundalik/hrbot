@@ -44,15 +44,10 @@ async def get_test_questions(file_path: str) -> list[dict]:
         if correct_num is None or not (1 <= correct_num <= 4):
             raise ValueError(f"Qatorda ({idx}) to'g'ri variant raqami 1 va 4 oralig'ida bo'lishi shart.")
 
-        answer = options[correct_num - 1]
-
-        if not answer:
-            raise ValueError(f"Qatorda ({idx}) tanlangan to'g'ri variant (variant {correct_num}) bo'sh bo'lishi mumkin emas.")
-
         questions.append({
             "question": question_text,
             "options": options,
-            "answer": answer
+            "answer": correct_num
         })
         
     if not questions:

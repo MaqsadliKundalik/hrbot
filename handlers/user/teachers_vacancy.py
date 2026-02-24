@@ -194,6 +194,7 @@ async def start_quizs(message_id: int, state: FSMContext, bot: Bot, chat_id: int
     msg = await bot.send_message(chat_id, "🚀 KETDIK!", parse_mode="HTML")
     await sleep(1)
     await bot.delete_message(chat_id=chat_id, message_id=msg.message_id)
+    
     await bot.send_poll(
         chat_id=chat_id,
         question=quizs.quizs[0]["question"],
@@ -201,7 +202,7 @@ async def start_quizs(message_id: int, state: FSMContext, bot: Bot, chat_id: int
             *quizs.quizs[0]["options"],
         ],
         type="quiz",
-        correct_option_id=int(quizs.quizs[0]["answer"]) - 1,
+        correct_option_id=quizs.quizs[0]["answer"] - 1,
         is_anonymous=False,
     )
     state_data = await state.get_data()
@@ -273,7 +274,7 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
                 *quizs_data[quiz_index + 1]["options"],
             ],
             type="quiz",
-            correct_option_id=int(quizs_data[quiz_index + 1]["answer"]) - 1,
+            correct_option_id=quizs_data[quiz_index + 1]["answer"] - 1,
             is_anonymous=False,
         )
     
