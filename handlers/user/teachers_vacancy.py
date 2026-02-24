@@ -39,7 +39,8 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
             await state.set_state(TeachersVacancyState.has_sertificate)
         case TeachersVacancyState.sertificate_ball:
             subject = await Subjects.get_or_none(id=state_data["subject_id"])
-            await message.answer("Sertifikatingizni tanlang.", reply_markup=sertifikatlar_lst_btn([sert.name for sert in await Sertificates.filter(subject=subject)], False))
+            ignor_names = [ser["name"] for ser in state_data["sertificates"]]
+            await message.answer("Sertifikatingizni tanlang.", reply_markup=sertifikatlar_lst_btn([sert.name for sert in await Sertificates.filter(subject=subject).exclude(name__in=ignor_names)], False))
             await state.set_state(TeachersVacancyState.sertificate_name)
         case TeachersVacancyState.sertificate_file:
             await message.answer("Sertifikat bo'yicha overall ballingizni tanlang.", reply_markup=sertifikat_balls_lst_btn([ball for ball in state_data["sertificate_ball_list"]], False))
