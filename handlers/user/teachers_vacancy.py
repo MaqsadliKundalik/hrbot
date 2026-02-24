@@ -26,7 +26,7 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
             await state.set_state(TeachersVacancyState.subject)
         case TeachersVacancyState.has_sertificate:
             if state_data.get("sertificates"):
-                sertificates = await Sertificates.get_or_none(name=state_data["sertificates"])
+                sertificates = state_data["sertificates"]
                 sertificates.pop()
                 await state.update_data(sertificates=sertificates)
                 await message.answer("Endi sertifikat faylini yuboring", reply_markup=back_btn)
