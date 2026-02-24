@@ -37,6 +37,9 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
             await message.answer("Sertifikat bo'yicha overall ballingizni tanlang.", reply_markup=sertifikat_balls_lst_btn([ball for ball in state_data["sertificate_ball_list"]], False))
             await state.set_state(TeachersVacancyState.sertificate_ball)
         case TeachersVacancyState.experience:
+            sertificates = await Sertificates.get_or_none(name=state_data["sertificates"])
+            sertificates.pop()
+            await state.update_data(sertificates=sertificates)
             await message.answer("Endi sertifikat faylini yuboring", reply_markup=back_btn)
             await state.set_state(TeachersVacancyState.sertificate_file)
         case TeachersVacancyState.last_work_place:
