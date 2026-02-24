@@ -1,3 +1,4 @@
+from token import AWAIT
 from aiogram.types import ReplyKeyboardRemove
 from aiogram import Router, F, Bot
 from aiogram.types import Message, PollAnswer, ReplyKeyboardRemove
@@ -24,8 +25,15 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
             await message.answer("Fanni tanlang.", reply_markup=fanlar_lst_btn([sub.name for sub in await Subjects.all()], False))
             await state.set_state(TeachersVacancyState.subject)
         case TeachersVacancyState.has_sertificate:
-            await message.answer("Ish vaqtini tanlang.", reply_markup=working_time_btn)
-            await state.set_state(TeachersVacancyState.working_time)
+            if state_data.get("sertificates"):
+                sertificates = await Sertificates.get_or_none(name=state_data["sertificates"])
+                sertificates.pop()
+                await state.update_data(sertificates=sertificates)
+                await message.answer("Endi sertifikat faylini yuboring", reply_markup=back_btn)
+                await state.set_state(TeachersVacancyState.sertificate_file)
+            else:
+                await message.answer("Ish vaqtini tanlang.", reply_markup=working_time_btn)
+                await state.set_state(TeachersVacancyState.working_time)
         case TeachersVacancyState.sertificate_name:
             await message.answer("Soha bo'yicha sertifikatingiz bormi?.", reply_markup=confirm_btn)
             await state.set_state(TeachersVacancyState.has_sertificate)
@@ -37,11 +45,8 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
             await message.answer("Sertifikat bo'yicha overall ballingizni tanlang.", reply_markup=sertifikat_balls_lst_btn([ball for ball in state_data["sertificate_ball_list"]], False))
             await state.set_state(TeachersVacancyState.sertificate_ball)
         case TeachersVacancyState.experience:
-            sertificates = await Sertificates.get_or_none(name=state_data["sertificates"])
-            sertificates.pop()
-            await state.update_data(sertificates=sertificates)
-            await message.answer("Endi sertifikat faylini yuboring", reply_markup=back_btn)
-            await state.set_state(TeachersVacancyState.sertificate_file)
+            await state.set_state(TeachersVacancyState.has_sertificate)
+            await message.answer("Yana sertifikatingiz bormi?", reply_markup=confirm_btn)
         case TeachersVacancyState.last_work_place:
             await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
             await state.set_state(TeachersVacancyState.experience)
