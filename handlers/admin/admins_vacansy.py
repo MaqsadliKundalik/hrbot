@@ -1,9 +1,10 @@
+from database.models import Subjects
 from aiogram import Router, F, Bot
 from aiogram.types import Message
 from keyboards.reply import admin_menu, kasblar_lst_btn, back_btn, admin_kasb_detail_btn
 from states.admin import AdminKasbStates
 from aiogram.fsm.context import FSMContext
-from database.models import VacanciesText
+from database.models import VacanciesText, Vacancies
 from filters.admin import InKasblarStateGroup, IsAdmin
 
 router = Router()
@@ -15,8 +16,7 @@ async def f(message: Message, state: FSMContext):
             await state.clear()
             await message.answer("Bosh menyu", reply_markup=admin_menu)
         case AdminKasbStates.add_kasb:
-            await state.set_state(AdminKasbStates.select_kasb)
-            await message.answer("Kasblardan birini tanlang yoki yangisini qo'shing.", reply_markup=kasblar_lst_btn([sub.name for sub in await VacanciesText.all()], is_admin=True))
+            await select_kasb_menu(message, state)
         case AdminKasbStates.add_kasb_text:
             await state.set_state(AdminKasbStates.add_kasb)
             await message.answer("Kasb nomini kiriting.", reply_markup=back_btn)
@@ -35,9 +35,10 @@ async def f(message: Message, state: FSMContext):
                 await message.answer("Kasblardan birini tanlang yoki yangisini qo'shing.", reply_markup=kasblar_lst_btn([sub.name for sub in await VacanciesText.all()], is_admin=True))
 
 @router.message(F.text == "Kasblar", IsAdmin())
-async def f(message: Message, state: FSMContext):
+async def select_kasb_menu(message: Message, state: FSMContext):
+    ignor_names = [sub.name for sub in await Subjects.all()]
     await state.set_state(AdminKasbStates.select_kasb)
-    await message.answer("Kasblardan birini tanlang yoki yangisini qo'shing.", reply_markup=kasblar_lst_btn([sub.name for sub in await VacanciesText.all()], is_admin=True))
+    await message.answer("Kasblardan birini tanlang yoki yangisini qo'shing.", reply_markup=kasblar_lst_btn([sub.name for sub in await VacanciesText.exclude(name__in=ignor_names).all()], is_admin=True))
 
 @router.message(F.text == "Yangi kasb qo'shish", AdminKasbStates.select_kasb)
 async def add_kasb(message: Message, state: FSMContext):
