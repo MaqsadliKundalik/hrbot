@@ -4,7 +4,7 @@ from aiogram.types import Message
 from keyboards.reply import admin_menu, kasblar_lst_btn, back_btn, admin_kasb_detail_btn
 from states.admin import AdminKasbStates
 from aiogram.fsm.context import FSMContext
-from database.models import VacanciesText, Vacancies
+from database.models import VacanciesText, Subjects
 from filters.admin import InKasblarStateGroup, IsAdmin
 
 router = Router()
