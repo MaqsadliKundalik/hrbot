@@ -119,4 +119,4 @@ Tez orada siz bilan bog'lanamiz!
         """, reply_markup=main_menu_users_btn(is_registered=True))
         await state.clear()
     else:
-        await message.answer("Iltimos, telefon raqamini kiriting!")
+        await message.answer("Noto'g'ri telefon raqami! To'g'ri telefon raqam kiriting.\n\nMasalan, +998 90 123 45 67")
