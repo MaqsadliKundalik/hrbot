@@ -246,6 +246,7 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
         await state.update_data(quiz_index=quiz_index + 1, correct_answers=state_data["correct_answers"] + 1)
     else:
         await state.update_data(quiz_index=quiz_index + 1)
+    state_data = await state.get_data()
     if quiz_index == len(quizs_data) - 1:
         await bot.send_message(answer.user.id, "<tg-emoji emoji-id='5348445120700102867'>🏁</tg-emoji>", parse_mode="HTML")
         await state.set_state(TeachersVacancyState.ready)
