@@ -250,7 +250,7 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
     if quiz_index == len(quizs_data) - 1:
         await bot.send_message(answer.user.id, "<tg-emoji emoji-id='5348445120700102867'>🏁</tg-emoji>", parse_mode="HTML")
         await state.set_state(TeachersVacancyState.ready)
-        await bot.send_message(answer.user.id, "Sizning test natijangiz:\n\nTo'g'ri javoblar soni: {}\nJavoblar soni: {} ta\nSavollar soni: {} ta".format(state_data["correct_answers"], state_data["quiz_index"] + 1, len(quizs_data)), parse_mode="HTML")
+        await bot.send_message(answer.user.id, "Sizning test natijangiz:\n\nTo'g'ri javoblar soni: {}\nJavoblar soni: {} ta\nSavollar soni: {} ta".format(state_data["correct_answers"], state_data["quiz_index"], len(quizs_data)), parse_mode="HTML")
         user = await TgUser.get_or_none(tg_id=answer.user.id)
         quizs = await Quizs.get_or_none(id=state_data["quizs_id"])
         await QuizAnswers.create(
