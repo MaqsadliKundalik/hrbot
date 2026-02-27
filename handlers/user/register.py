@@ -75,7 +75,7 @@ async def register_phone_number1(message: Message, state: FSMContext):
 async def register_phone_number2(message: Message, state: FSMContext):
     phone = message.text.strip()
     if not is_valid_phone(phone):
-        await message.answer("Iltimos, to'g'ri telefon raqamini kiriting (masalan: +998 90 123 45 67):")
+        await message.answer("Iltimos, to'g'ri telefon raqamini kiriting (masalan: +998901234567):")
         return
     state_data = await state.get_data()
     if state_data['phone_number1'] == phone:
