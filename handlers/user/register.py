@@ -20,7 +20,7 @@ async def register_full_name_back(message: Message, state: FSMContext):
             await message.answer("Ism-familiyangizni kiriting:", reply_markup=back_btn)
         case UserRegisterState.phone_number2:
             await state.set_state(UserRegisterState.phone_number1)
-            await message.answer("Telefon raqamingizni kiriting:", reply_markup=skip_btn)
+            await message.answer("Telefon raqamingizni yuboring:", reply_markup=skip_btn)
         case UserRegisterState.birth_date:
             await state.set_state(UserRegisterState.phone_number2)
             await message.answer("Ikkinchi telefon raqamingizni kiriting:", reply_markup=skip_btn)
