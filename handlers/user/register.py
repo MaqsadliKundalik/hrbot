@@ -33,12 +33,9 @@ async def register_full_name_back(message: Message, state: FSMContext):
         case UserRegisterState.work_or_study_address:
             await state.set_state(UserRegisterState.live_address)
             await message.answer("Yashash joyingizni kiriting:", reply_markup=back_btn)
-        case UserRegisterState.source_of_income:
+        case UserRegisterState.profile_pic:
             await state.set_state(UserRegisterState.work_or_study_address)
             await message.answer("Ish yoki o'qish joyingizni kiriting:", reply_markup=back_btn)
-        case UserRegisterState.profile_pic:
-            await state.set_state(UserRegisterState.source_of_income)
-            await message.answer("Daromad manbaiingizni kiriting:", reply_markup=back_btn)
         case __:
             await message.answer("Orqaga qaytildi!!", reply_markup=main_menu_users_btn(is_registered=False))
             await state.clear()
@@ -110,12 +107,6 @@ async def register_live_address(message: Message, state: FSMContext):
 @router.message(UserRegisterState.work_or_study_address, F.text)
 async def register_work_or_study_address(message: Message, state: FSMContext):
     await state.update_data(work_or_study_address=message.text)
-    await message.answer("Daromad manbaiingizni kiriting:", reply_markup=back_btn)
-    await state.set_state(UserRegisterState.source_of_income)
-
-@router.message(UserRegisterState.source_of_income, F.text)
-async def register_source_of_income(message: Message, state: FSMContext):
-    await state.update_data(source_of_income=message.text)
     await message.answer("Suratingizni yuboring:", reply_markup=skip_btn)
     await state.set_state(UserRegisterState.profile_pic)
 
@@ -148,7 +139,6 @@ async def register_profile_pic(message: Message, state: FSMContext, bot: Bot):
                     born_address=state_data['born_address'],
                     live_address=state_data['live_address'],
                     work_or_study_address=state_data['work_or_study_address'],
-                    source_of_income=state_data['source_of_income'],
                     profile_pic_file_id=profile_pic_file_id,
                     profile_pic_path=profile_pic_path
                 )

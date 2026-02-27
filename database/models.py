@@ -15,7 +15,6 @@ class TgUser(Model):
     born_address = fields.CharField(max_length=255)
     live_address = fields.CharField(max_length=255)
     work_or_study_address = fields.CharField(max_length=255)
-    source_of_income = fields.CharField(max_length=255)
     
     profile_pic_file_id = fields.CharField(max_length=255, null=True, blank=True)
     profile_pic_path = fields.CharField(max_length=255, null=True, blank=True)
