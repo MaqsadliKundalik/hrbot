@@ -164,7 +164,7 @@ async def select_sertificate_file(message: Message, state: FSMContext, bot: Bot)
         return
     state_data = await state.get_data()
     sertificates = state_data.get("sertificates", [])
-    sertificates.append({"name": state_data["sertificate_name"], "ball": state_data["sertificate_ball"], "file_id": message.document.file_id if message.document else message.photo[-1].file_id})
+    sertificates.append({"name": state_data["sertificate_name"], "ball": state_data["sertificate_ball"], "content_type": "document" if message.document else "photo", "file_id": message.document.file_id if message.document else message.photo[-1].file_id})
     await state.update_data(sertificates=sertificates)
     file = await bot.get_file(message.document.file_id if message.document else message.photo[-1].file_id)
     await bot.download_file(file.file_path, destination=f"statics/sertificates/{message.document.file_id if message.document else message.photo[-1].file_id}.{file.file_path.split('.')[-1]}")

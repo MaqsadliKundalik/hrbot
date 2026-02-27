@@ -42,6 +42,9 @@ async def get_sertificate_file(message: Message, state: FSMContext):
         await message.answer("Bu foydalanuvchining sertifikatlari topilmadi")
         return
     for sertificate in resume.sertificates:
-        await message.answer_document(sertificate.get("file_id"), caption=f"{user.full_name} - {sertificate.get('name')} - {sertificate.get('ball')}")
+        if sertificate.get("content_type") == "document":
+            await message.answer_document(sertificate.get("file_id"), caption=f"{user.full_name} - {sertificate.get('name')} - {sertificate.get('ball')}")
+        else:
+            await message.answer_photo(sertificate.get("file_id"), caption=f"{user.full_name} - {sertificate.get('name')} - {sertificate.get('ball')}")
     await state.clear()
     await message.answer("Sertifikat fayllari tugadi", reply_markup=reports_menu)
