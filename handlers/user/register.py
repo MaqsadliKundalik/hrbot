@@ -58,8 +58,12 @@ async def register_full_name(message: Message, state: FSMContext):
     await message.answer("Telefon raqamingizni yuboring", reply_markup=phone_btn)
     await state.set_state(UserRegisterState.phone_number1)
 
-@router.message(UserRegisterState.phone_number1, F.contact)
+@router.message(UserRegisterState.phone_number1)
 async def register_phone_number1(message: Message, state: FSMContext):
+    if not message.contact:
+        await message.answer("Iltimos, telefon raqamingizni \"Telefon raqamimni yuborish\" tugmasi orqali yuboring:", reply_markup=phone_btn)
+        return
+    
     phone = message.contact.phone_number
     if phone[0] != '+':
         phone = '+' + phone
