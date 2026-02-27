@@ -12,7 +12,7 @@ async def init_db():
 
 async def migrate_db():
     conn = Tortoise.get_connection("default")
-    conn.execute_query("ALTER TABLE tg_users DROP COLUMN IF EXISTS source_of_income")
+    await conn.execute_query("ALTER TABLE tg_users DROP COLUMN IF EXISTS source_of_income")
     
 async def close_db():
     await Tortoise.close_connections()
