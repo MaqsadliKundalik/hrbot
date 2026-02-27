@@ -130,7 +130,7 @@ async def register_profile_pic(message: Message, state: FSMContext, bot: Bot):
     else:
         await message.answer("Iltimos, suratingizni yuboring.")
         return
-    try:
+    # try:
         await TgUser.create(
                     tg_id=message.from_user.id,
                     full_name=state_data['full_name'],
@@ -142,9 +142,9 @@ async def register_profile_pic(message: Message, state: FSMContext, bot: Bot):
                     profile_pic_file_id=profile_pic_file_id,
                     profile_pic_path=profile_pic_path
                 )
-    except Exception as e:
-        await message.answer("Ro'yxatdan o'tishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", reply_markup=main_menu_users_btn(is_registered=False))
-        await state.clear()
-        return
+    # except Exception as e:
+    #     await message.answer("Ro'yxatdan o'tishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", reply_markup=main_menu_users_btn(is_registered=False))
+    #     await state.clear()
+    #     return
     await message.answer("Ro'yxatdan o'tish yakunlandi!", reply_markup=main_menu_users_btn(is_registered=True))
     await state.clear()
