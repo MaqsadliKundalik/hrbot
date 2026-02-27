@@ -6,7 +6,7 @@ from states.user import UserRegisterState
 from database.models import TgUser
 from datetime import datetime
 from filters.user import IsNewUser
-from keyboards.reply import skip_btn, back_btn, main_menu_users_btn
+from keyboards.reply import skip_btn, back_btn, main_menu_users_btn, phone_btn
 from utils import is_valid_phone, is_valid_date
 
 router = Router()
@@ -55,17 +55,16 @@ async def register(message: Message, state: FSMContext):
 @router.message(UserRegisterState.full_name, F.text)
 async def register_full_name(message: Message, state: FSMContext):
     await state.update_data(full_name=message.text)
-    await message.answer("Telefon raqamingizni kiriting:", reply_markup=back_btn)
+    await message.answer("Telefon raqamingizni yuboring", reply_markup=phone_btn)
     await state.set_state(UserRegisterState.phone_number1)
 
-@router.message(UserRegisterState.phone_number1, F.text)
+@router.message(UserRegisterState.phone_number1, F.contact)
 async def register_phone_number1(message: Message, state: FSMContext):
-    phone = message.text.strip()
-    if not is_valid_phone(phone):
-        await message.answer("Iltimos, to'g'ri telefon raqamini kiriting (masalan: +998 90 123 45 67):")
-        return
+    phone = message.contact.phone_number
+    if phone[0] != '+':
+        phone = '+' + phone
     await state.update_data(phone_number1=phone)
-    await message.answer("Ikkinchi telefon raqamingizni kiriting:", reply_markup=back_btn)
+    await message.answer("Ikkinchi telefon raqamingizni kiriting (masalan: +998901234567):", reply_markup=back_btn)
     await state.set_state(UserRegisterState.phone_number2)
 
 @router.message(UserRegisterState.phone_number2, F.text)

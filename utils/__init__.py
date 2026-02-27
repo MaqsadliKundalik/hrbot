@@ -2,8 +2,8 @@ import re
 from datetime import datetime
 
 def is_valid_phone(phone: str) -> bool:
-    # O'zbekiston telefon raqami formatlari: +998 90 123 45 67, +998901234567, 998901234567
-    pattern = r"^(\+998|998)?\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}$"
+    # O'zbekiston telefon raqami formati: +998912223344
+    pattern = r"^\+998\d{9}$"
     return re.match(pattern, phone) is not None
 
 def is_valid_date(date: str) -> bool:

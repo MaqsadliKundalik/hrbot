@@ -159,15 +159,15 @@ async def select_sertificate_ball(message: Message, state: FSMContext):
 
 @router.message(TeachersVacancyState.sertificate_file)
 async def select_sertificate_file(message: Message, state: FSMContext, bot: Bot):
-    if not message.document:
+    if not message.document and not message.photo:
         await message.answer("Iltimos, sertifikatni fayl ko'rinishida yuboring.")
         return
     state_data = await state.get_data()
     sertificates = state_data.get("sertificates", [])
-    sertificates.append({"name": state_data["sertificate_name"], "ball": state_data["sertificate_ball"], "file_id": message.document.file_id})
+    sertificates.append({"name": state_data["sertificate_name"], "ball": state_data["sertificate_ball"], "file_id": message.document.file_id if message.document else message.photo[-1].file_id})
     await state.update_data(sertificates=sertificates)
-    file = await bot.get_file(message.document.file_id)
-    await bot.download_file(file.file_path, destination=f"statics/sertificates/{message.document.file_id}.{message.document.file_name.split('.')[-1]}")
+    file = await bot.get_file(message.document.file_id if message.document else message.photo[-1].file_id)
+    await bot.download_file(file.file_path, destination=f"statics/sertificates/{message.document.file_id if message.document else message.photo[-1].file_id}.{file.file_path.split('.')[-1]}")
     ignor_sertificate_names = [sertificate["name"] for sertificate in sertificates]
     sertificates_lst = await Sertificates.filter(subject=state_data["subject_id"]).exclude(name__in=ignor_sertificate_names)
     if not sertificates_lst:
@@ -323,7 +323,7 @@ async def select_salary(message: Message, state: FSMContext):
         user=user
     )
     await message.answer("""
-Sabr bilan shu joyigacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
+Sabr bilan shu joygacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
 
 Tez orada siz bilan bog'lanamiz!
     """, reply_markup=main_menu_users_btn(is_registered=True))
