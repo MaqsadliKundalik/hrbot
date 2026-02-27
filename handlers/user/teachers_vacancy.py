@@ -300,7 +300,7 @@ async def select_why_leave_work(message: Message, state: FSMContext):
 @router.message(F.text, TeachersVacancyState.last_work_place_phone)
 async def select_last_work_place_phone(message: Message, state: FSMContext):
     if not is_valid_phone(message.text):
-        await message.answer("Noto'g'ri telefon raqami! To'g'ri telefon raqam kiriting.\n\nMasalan, +998 90 123 45 67")
+        await message.answer("Noto'g'ri telefon raqami! To'g'ri telefon raqam kiriting.\n\nMasalan, +998901234567")
         return
     await state.update_data(last_work_place_phone=message.text)
     await message.answer("Bizdan qancha oylik maosh kutayapsiz?", reply_markup=back_btn)
