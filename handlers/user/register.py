@@ -20,22 +20,25 @@ async def register_full_name_back(message: Message, state: FSMContext):
             await message.answer("Ism-familiyangizni kiriting:", reply_markup=back_btn)
         case UserRegisterState.phone_number2:
             await state.set_state(UserRegisterState.phone_number1)
-            await message.answer("Telefon raqamingizni yuboring:", reply_markup=skip_btn)
+            await message.answer("Telefon raqamingizni yuboring:\n\n", reply_markup=skip_btn)
         case UserRegisterState.birth_date:
             await state.set_state(UserRegisterState.phone_number2)
-            await message.answer("Ikkinchi telefon raqamingizni kiriting:", reply_markup=skip_btn)
+            await message.answer("Ikkinchi telefon raqamingizni kiriting:\n\nMasalan: +998901234567", reply_markup=skip_btn)
         case UserRegisterState.born_address:
             await state.set_state(UserRegisterState.birth_date)
-            await message.answer("Tug'ilgan kuningizni kiriting:\n\nmasalan: 01.01.2000", reply_markup=back_btn)
+            await message.answer("Tug'ilgan kuningizni kiriting:\n\nMasalan: 01.01.2000", reply_markup=back_btn)
         case UserRegisterState.live_address:
             await state.set_state(UserRegisterState.born_address)
             await message.answer("Tug'ilgan joyingizni kiriting:", reply_markup=back_btn)
         case UserRegisterState.work_or_study_address:
             await state.set_state(UserRegisterState.live_address)
             await message.answer("Yashash joyingizni kiriting:", reply_markup=back_btn)
-        case UserRegisterState.profile_pic:
+        case UserRegisterState.branch:
             await state.set_state(UserRegisterState.work_or_study_address)
             await message.answer("Ish yoki o'qish joyingizni kiriting:", reply_markup=back_btn)
+        case UserRegisterState.profile_pic:
+            await state.set_state(UserRegisterState.branch)
+            await message.answer("Qaysi filialimizga murojaat qilmoqchisiz?", reply_markup=branches_btn)
         case __:
             await message.answer("Orqaga qaytildi!!", reply_markup=main_menu_users_btn(is_registered=False))
             await state.clear()
