@@ -297,7 +297,7 @@ async def select_last_work_place(message: Message, state: FSMContext):
 @router.message(F.text, TeachersVacancyState.why_leave_work)
 async def select_why_leave_work(message: Message, state: FSMContext):
     await state.update_data(why_leave_work=message.text)
-    await message.answer("Tashkilot telefon raqamini kiriting.", reply_markup=back_btn)
+    await message.answer("Tashkilot telefon raqamini kiriting.\n\nMasalan: +998901234567", reply_markup=back_btn)
     await state.set_state(TeachersVacancyState.last_work_place_phone)
 
 @router.message(F.text, TeachersVacancyState.last_work_place_phone)
