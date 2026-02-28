@@ -218,7 +218,7 @@ reports_menu.adjust(1)
 reports_menu = reports_menu.as_markup(resize_keyboard=True)
 
 phone_btn = ReplyKeyboardBuilder()
-phone_btn.button(text="Telefon raqamimni yuborish", request_contact=True)
+phone_btn.button(text="Telefon raqamimni yuborish", request_contact=True, style="primary")
 phone_btn.button(text="Orqaga", icon_custom_emoji_id="5400169738263352182")
 phone_btn.adjust(1)
 phone_btn = phone_btn.as_markup(resize_keyboard=True)
