@@ -333,7 +333,7 @@ async def select_why_choice_us(message: Message, state: FSMContext):
     )
     last_text = await VacanciesText.get_or_none(name=state_data["subject_name"])
     if last_text and len(last_text.last_text.strip()) > 5:
-        await message.answer(last_text.last_text, parse_mode="HTML")
+        await message.answer(last_text.last_text, parse_mode="HTML", reply_markup=main_menu_users_btn(is_registered=True))
     else:
         await message.answer("""
 Sabr bilan shu joygacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
