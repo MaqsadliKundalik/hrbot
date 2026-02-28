@@ -72,6 +72,7 @@ def kasblar_lst_btn(kasblar: list[str], is_admin: bool):
 def admin_kasb_detail_btn():
     markup = ReplyKeyboardBuilder()
     markup.button(text="Vakansiya matnini yangilash")
+    markup.button(text="Oxirgi matnni yangilash")
     markup.button(text="Kasbni o'chirish")
     markup.button(text="Orqaga", icon_custom_emoji_id="5400169738263352182")
     markup.adjust(1)
@@ -136,6 +137,7 @@ def sertifikatlar_lst_btn(sertifikatlar: list[str], is_admin: bool):
     if is_admin:
         markup.button(text="Yangi sertifikat qo'shish")
         markup.button(text="Vakansiya matnini yangilash")
+        markup.button(text="Oxirgi matnni yangilash")
         markup.button(text="Test faylini yangilash")
         markup.button(text="Shablon faylni olish")
         markup.button(text="Fanni o'chirish")

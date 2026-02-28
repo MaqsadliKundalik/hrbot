@@ -211,6 +211,29 @@ async def update_vacancy_text(message: Message, state: FSMContext):
     await state.set_state(AdminSubjectStates.select_sertifikat)
     await message.answer("Vakansiya matni yangilandi!", reply_markup=sertifikatlar_lst_btn([s.name for s in await Sertificates.filter(subject=subject)], is_admin=True))
 
+@router.message(F.text == "Oxirgi matnni yangilash", AdminSubjectStates.select_sertifikat)
+async def update_last_text(message: Message, state: FSMContext):
+    await state.set_state(AdminSubjectStates.update_last_text)
+    await message.answer("Oxirgi matnni yuboring.", reply_markup=back_btn)
+
+@router.message(F.text, AdminSubjectStates.update_last_text)
+async def update_last_text(message: Message, state: FSMContext):
+    state_data = await state.get_data()
+    subject = await Subjects.get_or_none(id=state_data['selected_subject_id'])
+    if not subject:
+        await message.answer("Bunday fan mavjud emas!")
+        await state.set_state(AdminSubjectStates.select_fan)
+        await message.answer("Fanlardan birini tanlang yoki yangisini qo'shing.", reply_markup=fanlar_lst_btn([sub.name for sub in await Subjects.all()], is_admin=True))
+        return
+    vacancy = await VacanciesText.filter(name=subject.name).first()
+    if not vacancy:
+        await VacanciesText.create(name=subject.name, last_text=message.text)
+    else:
+        vacancy.last_text = message.text
+        await vacancy.save()
+    await state.set_state(AdminSubjectStates.select_sertifikat)
+    await message.answer("Oxirgi matn yangilandi!", reply_markup=sertifikatlar_lst_btn([s.name for s in await Sertificates.filter(subject=subject)], is_admin=True))
+
 @router.message(F.text, AdminSubjectStates.add_sertifikat)
 async def add_sertifikat(message: Message, state: FSMContext):
     state_data = await state.get_data()

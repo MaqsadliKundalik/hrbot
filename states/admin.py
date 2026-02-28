@@ -14,6 +14,7 @@ class AdminSubjectStates(StatesGroup):
 
     update_quiz = State()
     update_vacancy_text = State()
+    update_last_text = State()
 
 class AdminKasbStates(StatesGroup):
     select_kasb = State()
@@ -22,6 +23,7 @@ class AdminKasbStates(StatesGroup):
     add_kasb_text = State()
 
     update_vacancy_text = State()
+    update_last_text = State()
 
 class GetSertificateFIleState(StatesGroup):
     tg_id = State()

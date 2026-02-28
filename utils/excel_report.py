@@ -101,12 +101,12 @@ async def generate_report() -> io.BytesIO:
 
     admin_headers = [
         "№", "Rasm", "Ism Familiya", "Telegram ID", "Telefon",
-        "Tug'ilgan sana", "Xorijiy til", "Til darajasi",
+        "Tug'ilgan sana", "Tug'ilgan joyi", "Yashash manzili", "Xorijiy til", "Til darajasi",
         "Tajriba", "Ish vaqti",
         "Oxirgi ish joyi", "Ketish sababi", "Tel (ish joyi)",
-        "Ariza sanasi",
+        "Nega bizni tanladi", "Bizni qayerdan topdi", "Ariza sanasi",
     ]
-    admin_widths = [4, IMG_COL_WIDTH, 24, 16, 18, 14, 16, 14, 14, 14, 22, 22, 18, 18]
+    admin_widths = [4, IMG_COL_WIDTH, 24, 16, 18, 14, 20, 20, 16, 14, 14, 14, 22, 22, 18, 25, 20, 18]
 
     admins = await AdminsResume.all().prefetch_related("user").order_by("job", "id")
     admin_groups: dict[str, list] = defaultdict(list)
@@ -126,11 +126,13 @@ async def generate_report() -> io.BytesIO:
 
             row_data = [
                 idx,
-                "",   # Rasm ustuni — bo'sh, ustiga rasm tushadi
+                "",   # Rasm ustuni
                 user.full_name,
                 user.tg_id,
                 phones,
                 str(user.birth_date) if user.birth_date else "—",
+                user.born_address or "—",
+                user.live_address or "—",
                 resume.foreign_language,
                 resume.foreign_language_level,
                 resume.experience,
@@ -138,6 +140,8 @@ async def generate_report() -> io.BytesIO:
                 resume.last_work_place,
                 resume.why_leave_work,
                 resume.last_work_place_phone,
+                resume.why_choice_us or "—",
+                user.where_find_us or "—",
                 resume.created_at.strftime("%d.%m.%Y %H:%M") if resume.created_at else "—",
             ]
             ws.append(row_data)
@@ -147,12 +151,12 @@ async def generate_report() -> io.BytesIO:
 
     teacher_headers = [
         "№", "Rasm", "Ism Familiya", "Telegram ID", "Telefon",
-        "Tug'ilgan sana", "Tajriba", "Ish vaqti", "Maosh (so'm)",
+        "Tug'ilgan sana", "Tug'ilgan joyi", "Yashash manzili", "Tajriba", "Ish vaqti", "Maosh (so'm)",
         "Sertifikatlar",
         "Oxirgi ish joyi", "Ketish sababi", "Tel (ish joyi)",
-        "Ariza sanasi",
+        "Nega bizni tanladi", "Bizni qayerdan topdi", "Ariza sanasi",
     ]
-    teacher_widths = [4, IMG_COL_WIDTH, 24, 16, 18, 14, 13, 13, 16, 32, 22, 22, 18, 18]
+    teacher_widths = [4, IMG_COL_WIDTH, 24, 16, 18, 14, 20, 20, 13, 13, 16, 32, 22, 22, 18, 25, 20, 18]
 
     teachers = await TeacherResume.all().prefetch_related("user").order_by("subject", "id")
     teacher_groups: dict[str, list] = defaultdict(list)
@@ -185,6 +189,8 @@ async def generate_report() -> io.BytesIO:
                 user.tg_id,
                 phones,
                 str(user.birth_date) if user.birth_date else "—",
+                user.born_address or "—",
+                user.live_address or "—",
                 resume.experience,
                 resume.working_time,
                 resume.salary,
@@ -192,6 +198,8 @@ async def generate_report() -> io.BytesIO:
                 resume.last_work_place,
                 resume.why_leave_work,
                 resume.last_work_place_phone,
+                resume.why_choice_us or "—",
+                user.where_find_us or "—",
                 resume.created_at.strftime("%d.%m.%Y %H:%M") if resume.created_at else "—",
             ]
             ws.append(row_data)

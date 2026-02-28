@@ -34,6 +34,9 @@ async def admins_vanacies(message: Message, state: FSMContext):
             await admins_vanacies_experience(message, state)
         case AdminsVacancyState.last_work_place_phone:
             await admins_vanacies_last_work_place(message, state)
+        case AdminsVacancyState.why_choice_us:
+            await message.answer("Oxirgi ish joyingiz telefon raqami?", reply_markup=back_btn)
+            await state.set_state(AdminsVacancyState.last_work_place_phone)
 
 @router.message(F.text == "Adminlarga", IsRegisteredUser())
 async def admins_vanacies_start(message: Message, state: FSMContext):
@@ -99,24 +102,35 @@ async def admins_vanacies_why_leave_work(message: Message, state: FSMContext):
 @router.message(F.text, AdminsVacancyState.last_work_place_phone)
 async def admins_vanacies_last_work_place_phone(message: Message, state: FSMContext):
     if is_valid_phone(message.text):
-        state_data = await state.get_data()
-        user = await TgUser.get_or_none(tg_id=message.from_user.id)
-        await AdminsResume.create(
-            user=user,
-            job=state_data["vacancy_type"],
-            working_time=state_data["working_time"],
-            foreign_language=state_data["foreign_language"],
-            foreign_language_level=state_data["foreign_language_level"],
-            experience=state_data["experience"],
-            last_work_place=state_data["last_work_place"],
-            why_leave_work=state_data["why_leave_work"],
-            last_work_place_phone=message.text,
-        )
+        await state.update_data(last_work_place_phone=message.text)
+        await message.answer("Nega aynan bizni tanladingiz?", reply_markup=back_btn)
+        await state.set_state(AdminsVacancyState.why_choice_us)
+    else:
+        await message.answer("Noto'g'ri telefon raqam! To'g'ri telefon raqam kiriting.\n\nMasalan, +998901234567")
+
+@router.message(F.text, AdminsVacancyState.why_choice_us)
+async def admins_vanacies_why_choice_us(message: Message, state: FSMContext):
+    state_data = await state.get_data()
+    user = await TgUser.get_or_none(tg_id=message.from_user.id)
+    await AdminsResume.create(
+        user=user,
+        job=state_data["vacancy_type"],
+        working_time=state_data["working_time"],
+        foreign_language=state_data["foreign_language"],
+        foreign_language_level=state_data["foreign_language_level"],
+        experience=state_data["experience"],
+        last_work_place=state_data["last_work_place"],
+        why_leave_work=state_data["why_leave_work"],
+        last_work_place_phone=state_data["last_work_place_phone"],
+        why_choice_us=message.text,
+    )
+    last_text = await VacanciesText.get_or_none(name=state_data["vacancy_type"])
+    if last_text:
+        await message.answer(last_text.last_text, parse_mode="HTML")
+    else:
         await message.answer("""
 Sabr bilan shu joyigacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
 
 Tez orada siz bilan bog'lanamiz!
-        """, reply_markup=main_menu_users_btn(is_registered=True))
-        await state.clear()
-    else:
-        await message.answer("Noto'g'ri telefon raqami! To'g'ri telefon raqam kiriting.\n\nMasalan, +998901234567")
+    """, reply_markup=main_menu_users_btn(is_registered=True))
+    await state.clear()

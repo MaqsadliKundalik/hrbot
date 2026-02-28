@@ -9,6 +9,7 @@ class UserRegisterState(StatesGroup):
     live_address = State()
     work_or_study_address = State()
     source_of_income = State()
+    where_find_us = State()
     profile_pic = State()
 
 class VacanciesState(StatesGroup):
@@ -26,6 +27,7 @@ class TeachersVacancyState(StatesGroup):
     why_leave_work = State()
     last_work_place_phone = State()
     salary = State()
+    why_choice_us = State()
 
     ready = State()
     quizs = State()
@@ -39,3 +41,4 @@ class AdminsVacancyState(StatesGroup):
     last_work_place = State()
     why_leave_work = State()
     last_work_place_phone = State()
+    why_choice_us = State()

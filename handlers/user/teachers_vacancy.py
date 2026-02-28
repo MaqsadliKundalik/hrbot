@@ -64,6 +64,9 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
         case TeachersVacancyState.salary:
             await message.answer("Tashkilot telefon raqamini kiriting.", reply_markup=back_btn)
             await state.set_state(TeachersVacancyState.last_work_place_phone)
+        case TeachersVacancyState.why_choice_us:
+            await message.answer("Bizdan qancha oylik maosh kutayapsiz?", reply_markup=back_btn)
+            await state.set_state(TeachersVacancyState.salary)
         case __:
             await message.answer("Orqaga qaytildi!!", reply_markup=main_menu_users_btn(is_registered=True))
             await state.clear()
@@ -309,6 +312,11 @@ async def select_last_work_place_phone(message: Message, state: FSMContext):
 @router.message(F.text, TeachersVacancyState.salary)
 async def select_salary(message: Message, state: FSMContext):
     await state.update_data(salary=message.text)
+    await message.answer("Nega aynan bizni tanladingiz?", reply_markup=back_btn)
+    await state.set_state(TeachersVacancyState.why_choice_us)
+
+@router.message(F.text, TeachersVacancyState.why_choice_us)
+async def select_why_choice_us(message: Message, state: FSMContext):
     state_data = await state.get_data()
     user = await TgUser.get_or_none(tg_id=message.from_user.id)
     await TeacherResume.create(
@@ -320,11 +328,16 @@ async def select_salary(message: Message, state: FSMContext):
         why_leave_work=state_data['why_leave_work'],
         last_work_place_phone=state_data['last_work_place_phone'],
         salary=state_data['salary'],
+        why_choice_us=message.text,
         user=user
     )
-    await message.answer("""
+    last_text = await VacanciesText.get_or_none(name=state_data["subject_name"])
+    if last_text:
+        await message.answer(last_text.last_text, parse_mode="HTML")
+    else:
+        await message.answer("""
 Sabr bilan shu joygacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
 
 Tez orada siz bilan bog'lanamiz!
-    """, reply_markup=main_menu_users_btn(is_registered=True))
+        """, reply_markup=main_menu_users_btn(is_registered=True))
     await state.clear()

@@ -15,7 +15,8 @@ class TgUser(Model):
     born_address = fields.CharField(max_length=255)
     live_address = fields.CharField(max_length=255)
     work_or_study_address = fields.CharField(max_length=255)
-    
+    where_find_us = fields.CharField(max_length=255, null=True, blank=True)
+
     profile_pic_file_id = fields.CharField(max_length=255, null=True, blank=True)
     profile_pic_path = fields.CharField(max_length=255, null=True, blank=True)
 
@@ -38,6 +39,7 @@ class TeacherResume(Model):
     last_work_place = fields.CharField(max_length=100)
     why_leave_work = fields.CharField(max_length=100)
     last_work_place_phone = fields.CharField(max_length=100)
+    why_choice_us = fields.CharField(max_length=100)
 
     created_at = fields.DatetimeField(default=utcnow)
     
@@ -58,6 +60,7 @@ class AdminsResume(Model):
     last_work_place = fields.CharField(max_length=100)
     why_leave_work = fields.CharField(max_length=100)
     last_work_place_phone = fields.CharField(max_length=100)
+    why_choice_us = fields.CharField(max_length=100)
 
     created_at = fields.DatetimeField(default=utcnow)
     
@@ -71,7 +74,8 @@ class VacanciesText(Model):
     id = fields.IntField(pk=True)
     name = fields.CharField(max_length=100)
     text = fields.TextField()
-    
+    last_text = fields.TextField(default="")
+
     class Meta:
         table = "vacancies_text"
 
