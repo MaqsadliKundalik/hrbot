@@ -87,8 +87,8 @@ async def select_subject(message: Message, state: FSMContext):
         await message.answer("Bunday fan mavjud emas!")
         return
     await state.update_data(subject_id=subject.id, subject_name=subject.name)
-    vacansy_text = await VacanciesText.get_or_none(name=message.text)
-    if vacansy_text:
+    vacansy_text = await VacanciesText.get_or_none(name=subject.name)
+    if vacansy_text and vacansy_text.text:
         await message.answer(vacansy_text.text, parse_mode="HTML")
     await message.answer("Ish vaqtini tanlang.", reply_markup=working_time_btn)
     await state.set_state(TeachersVacancyState.working_time)

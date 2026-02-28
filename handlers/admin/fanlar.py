@@ -227,7 +227,7 @@ async def update_last_text(message: Message, state: FSMContext):
         return
     vacancy = await VacanciesText.filter(name=subject.name).first()
     if not vacancy:
-        await VacanciesText.create(name=subject.name, last_text=message.text)
+        await VacanciesText.create(name=subject.name, text="", last_text=message.text)
     else:
         vacancy.last_text = message.text
         await vacancy.save()
