@@ -10,6 +10,7 @@ class UserRegisterState(StatesGroup):
     work_or_study_address = State()
     source_of_income = State()
     where_find_us = State()
+    branch = State()
     profile_pic = State()
 
 class VacanciesState(StatesGroup):

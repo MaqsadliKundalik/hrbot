@@ -6,7 +6,7 @@ from states.user import UserRegisterState
 from database.models import TgUser
 from datetime import datetime
 from filters.user import IsNewUser
-from keyboards.reply import skip_btn, back_btn, main_menu_users_btn, phone_btn
+from keyboards.reply import skip_btn, back_btn, main_menu_users_btn, phone_btn, branches_btn
 from utils import is_valid_phone, is_valid_date
 
 router = Router()
@@ -113,6 +113,12 @@ async def register_work_or_study_address(message: Message, state: FSMContext):
 @router.message(UserRegisterState.where_find_us, F.text)
 async def register_where_find_us(message: Message, state: FSMContext):
     await state.update_data(where_find_us=message.text)
+    await message.answer("Qaysi filialimizga murojaat qilmoqchisiz?", reply_markup=branches_btn)
+    await state.set_state(UserRegisterState.branch)
+
+@router.message(UserRegisterState.branch, F.text)
+async def register_branch(message: Message, state: FSMContext):
+    await state.update_data(branch=message.text)
     await message.answer("Suratingizni yuboring:", reply_markup=skip_btn)
     await state.set_state(UserRegisterState.profile_pic)
 
@@ -146,6 +152,7 @@ async def register_profile_pic(message: Message, state: FSMContext, bot: Bot):
                 live_address=state_data['live_address'],
                 work_or_study_address=state_data['work_or_study_address'],
                 where_find_us=state_data['where_find_us'],
+                branch=state_data['branch'],
                 profile_pic_file_id=profile_pic_file_id,
                 profile_pic_path=profile_pic_path
             )

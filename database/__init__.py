@@ -12,10 +12,7 @@ async def init_db():
 
 async def migrate_db():
     conn = Tortoise.get_connection("default")
-    await conn.execute_query("ALTER TABLE tg_users ADD COLUMN IF NOT EXISTS where_find_us VARCHAR(255)")
-    await conn.execute_query("ALTER TABLE teacher_resumes ADD COLUMN IF NOT EXISTS why_choice_us VARCHAR(100)")
-    await conn.execute_query("ALTER TABLE vacancies_text ADD COLUMN IF NOT EXISTS last_text TEXT DEFAULT ''")
-    await conn.execute_query("ALTER TABLE admins_resumes ADD COLUMN IF NOT EXISTS why_choice_us VARCHAR(100)")
+    await conn.execute_query("ALTER TABLE tg_users ADD COLUMN IF NOT EXISTS branch VARCHAR(100)")
     
 async def close_db():
     await Tortoise.close_connections()
