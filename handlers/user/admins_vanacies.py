@@ -125,7 +125,7 @@ async def admins_vanacies_why_choice_us(message: Message, state: FSMContext):
         why_choice_us=message.text,
     )
     last_text = await VacanciesText.get_or_none(name=state_data["vacancy_type"])
-    if last_text:
+    if last_text and len(last_text.last_text.strip()) > 5:
         await message.answer(last_text.last_text, parse_mode="HTML")
     else:
         await message.answer("""
