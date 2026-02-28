@@ -96,7 +96,7 @@ async def admins_vanacies_last_work_place(message: Message, state: FSMContext):
 @router.message(F.text, AdminsVacancyState.why_leave_work)
 async def admins_vanacies_why_leave_work(message: Message, state: FSMContext):
     await state.update_data(why_leave_work=message.text)
-    await message.answer("Oxirgi ish joyingiz telefon raqami?", reply_markup=back_btn)
+    await message.answer("Oxirgi ish joyingiz telefon raqami?\n\nMasalan: +998901234567", reply_markup=back_btn)
     await state.set_state(AdminsVacancyState.last_work_place_phone)
 
 @router.message(F.text, AdminsVacancyState.last_work_place_phone)
