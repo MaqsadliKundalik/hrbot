@@ -7,7 +7,7 @@ from config import ADMINS
 class InFanlarStateGroup(BaseFilter):
     async def __call__(self, message: types.Message, state: FSMContext) -> bool:
         state_now = await state.get_state()
-        return state_now in [AdminSubjectStates.select_fan, AdminSubjectStates.add_fan, AdminSubjectStates.add_sertifikat, AdminSubjectStates.add_sertifikat_balls, AdminSubjectStates.select_sertifikat, AdminSubjectStates.view_balls, AdminSubjectStates.add_ball, AdminSubjectStates.delete_ball]
+        return state_now in [AdminSubjectStates.select_fan, AdminSubjectStates.add_fan, AdminSubjectStates.add_sertifikat, AdminSubjectStates.add_sertifikat_balls, AdminSubjectStates.select_sertifikat, AdminSubjectStates.view_balls, AdminSubjectStates.add_ball, AdminSubjectStates.delete_ball, AdminSubjectStates.update_quiz, AdminSubjectStates.update_vacancy_text]
 
 class IsAdmin(BaseFilter):
     async def __call__(self, message: types.Message) -> bool:
