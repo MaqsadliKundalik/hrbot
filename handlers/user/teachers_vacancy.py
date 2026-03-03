@@ -1,7 +1,7 @@
 from token import AWAIT
 from aiogram.types import ReplyKeyboardRemove
 from aiogram import Router, F, Bot
-from aiogram.types import Message, PollAnswer, ReplyKeyboardRemove
+from aiogram.types import Message, PollAnswer, ReplyKeyboardRemove, CallbackQuery
 from filters.user import IsRegisteredUser
 from keyboards.reply import vacancies_btn, fanlar_lst_btn, working_time_btn, confirm_btn, sertifikatlar_lst_btn, sertifikat_balls_lst_btn, back_btn, main_menu_users_btn, ready_btn
 from keyboards.inline import teacher_position_btn
