@@ -289,8 +289,12 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
 @router.callback_query(F.data.startswith("position_"))
 async def select_position(callback_query: CallbackQuery, state: FSMContext):
     await state.update_data(position=callback_query.data.split("_")[1])
-    await callback_query.message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
+    await callback_query.message.edit_text(
+        "Ustozlar vakansiyasi bo'yicha lavozimni tanlang.\n\n" + callback_query.data.split("_")[1],
+        reply_markup=None
+    )
     await state.set_state(TeachersVacancyState.experience)
+    await callback_query.message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
 
 @router.message(F.text, TeachersVacancyState.experience)
 async def select_experience(message: Message, state: FSMContext):
