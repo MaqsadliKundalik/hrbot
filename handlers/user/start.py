@@ -18,7 +18,7 @@ async def vacancies(message: Message):
 
 @router.message(F.text == "Biz haqimizda")
 async def about(message: Message):  
-    await message.answer("Biz haqimizda")
+    await message.bot.copy_message(chat_id=message.chat.id, from_chat_id=1003848271662, message_id=6)
 
 @router.message(F.text == "Bog'lanish")
 async def contact(message: Message):  
