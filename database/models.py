@@ -35,6 +35,7 @@ class TeacherResume(Model):
     subject = fields.CharField(max_length=100)
     experience = fields.CharField(max_length=100)
     working_time = fields.CharField(max_length=100)
+    position = fields.CharField(max_length=20)
     salary = fields.CharField(max_length=100)
     sertificates = fields.JSONField(default=[])
     last_work_place = fields.CharField(max_length=100)

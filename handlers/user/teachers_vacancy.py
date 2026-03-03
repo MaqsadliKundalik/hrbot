@@ -4,6 +4,7 @@ from aiogram import Router, F, Bot
 from aiogram.types import Message, PollAnswer, ReplyKeyboardRemove
 from filters.user import IsRegisteredUser
 from keyboards.reply import vacancies_btn, fanlar_lst_btn, working_time_btn, confirm_btn, sertifikatlar_lst_btn, sertifikat_balls_lst_btn, back_btn, main_menu_users_btn, ready_btn
+from keyboards.inline import teacher_position_btn
 from database.models import Subjects, Sertificates, TeacherResume, TgUser, Quizs, QuizAnswers, VacanciesText
 from aiogram.fsm.context import FSMContext
 from states.user import TeachersVacancyState
@@ -49,9 +50,12 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
         case TeachersVacancyState.sertificate_file:
             await message.answer("Sertifikat bo'yicha overall ballingizni tanlang.", reply_markup=sertifikat_balls_lst_btn([ball for ball in state_data.get("sertificate_ball_list")], False))
             await state.set_state(TeachersVacancyState.sertificate_ball)
-        case TeachersVacancyState.experience:
+        case TeachersVacancyState.position:
             await state.set_state(TeachersVacancyState.has_sertificate)
             await message.answer("Yana sertifikatingiz bormi?", reply_markup=confirm_btn)
+        case TeachersVacancyState.experience:
+            await state.set_state(TeachersVacancyState.position)
+            await message.answer("Ustozlar vakansiyasi bo'yicha lavozimni tanlang.", reply_markup=teacher_position_btn)
         case TeachersVacancyState.last_work_place:
             await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
             await state.set_state(TeachersVacancyState.experience)
@@ -110,9 +114,9 @@ async def select_has_sertificate(message: Message, state: FSMContext):
         ignor_sertificate_names = [sertificate["name"] for sertificate in state_data.get("sertificates", [])]
         sertificates_lst = await Sertificates.filter(subject=subject).exclude(name__in=ignor_sertificate_names)
         if not sertificates_lst:
-            await state.set_state(TeachersVacancyState.experience)
+            await state.set_state(TeachersVacancyState.position)
             await message.answer("Afsuski sizning faningiz bo'yicha boshqa sertifikat mavjud emas.", reply_markup=back_btn)
-            await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
+            await message.answer("Ustozlar vakansiyasi bo'yicha lavozimni tanlang.", reply_markup=teacher_position_btn)
             return
 
         await state.update_data(has_sertificate=True)
@@ -120,8 +124,8 @@ async def select_has_sertificate(message: Message, state: FSMContext):
         await state.set_state(TeachersVacancyState.sertificate_name)
     else:
         if state_data.get("sertificates", []) != []:
-            await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
-            await state.set_state(TeachersVacancyState.experience)
+            await message.answer("Ustozlar vakansiyasi bo'yicha lavozimni tanlang.", reply_markup=teacher_position_btn)
+            await state.set_state(TeachersVacancyState.position)
             return
 
         user = await TgUser.get_or_none(tg_id=message.chat.id)
@@ -134,10 +138,10 @@ async def select_has_sertificate(message: Message, state: FSMContext):
             await message.answer("Siz bu testni avval topshirgansiz.", reply_markup=back_btn)
             if answer.correct_answers >= len(quiz.quizs) * 0.8:
                 await message.answer("Siz testdan o'tgansiz!")
-                await state.set_state(TeachersVacancyState.experience)
-                await message.answer("Sohadagi tajribangiz necha yil?")
+                await state.set_state(TeachersVacancyState.position)
+                await message.answer("Ustozlar vakansiyasi bo'yicha lavozimni tanlang.", reply_markup=teacher_position_btn)
             else:
-                await message.answer("Afsuski siz testdan o'tolmagansiz!", reply_markup=main_menu_users_btn(is_registered=True))
+                await message.answer("Afsuski siz testdan o'tolmadingiz!", reply_markup=main_menu_users_btn(is_registered=True))
                 await state.clear()
             return
         await state.update_data(has_sertificate=False)
@@ -174,8 +178,8 @@ async def select_sertificate_file(message: Message, state: FSMContext, bot: Bot)
     ignor_sertificate_names = [sertificate["name"] for sertificate in sertificates]
     sertificates_lst = await Sertificates.filter(subject=state_data["subject_id"]).exclude(name__in=ignor_sertificate_names)
     if not sertificates_lst:
-        await state.set_state(TeachersVacancyState.experience)
-        await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
+        await state.set_state(TeachersVacancyState.position)
+        await message.answer("Ustozlar vakansiyasi bo'yicha lavozimni tanlang.", reply_markup=teacher_position_btn)
         return
     await state.set_state(TeachersVacancyState.has_sertificate)
     await message.answer("Yana sertifikatingiz bormi?", reply_markup=confirm_btn)
@@ -227,8 +231,8 @@ async def start_quizs(message_id: int, state: FSMContext, bot: Bot, chat_id: int
         )
         if state_data["correct_answers"] >= len(quizs_data) * 0.8:
             await bot.send_message(chat_id, "Siz testdan o'tdingiz!")
-            await state.set_state(TeachersVacancyState.experience)
-            await bot.send_message(chat_id, "Sohadagi tajribangiz necha yil?")
+            await state.set_state(TeachersVacancyState.position)
+            await bot.send_message(chat_id, "Ustozlar vakansiyasi bo'yicha lavozimni tanlang.", reply_markup=teacher_position_btn)
         else:
             await bot.send_message(chat_id, "Afsuski siz testdan o'tolmadingiz!", reply_markup=main_menu_users_btn(is_registered=True))
             await state.clear()
@@ -264,8 +268,8 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
         
         if state_data["correct_answers"] >= len(quizs_data) * 0.8:
             await bot.send_message(answer.user.id, "Siz testdan o'tdingiz!")
-            await state.set_state(TeachersVacancyState.experience)
-            await bot.send_message(answer.user.id, "Sohadagi tajribangiz necha yil?")
+            await state.set_state(TeachersVacancyState.position)
+            await bot.send_message(answer.user.id, "Ustozlar vakansiyasi bo'yicha lavozimni tanlang.", reply_markup=teacher_position_btn)
         else:
             await bot.send_message(answer.user.id, "Afsuski siz testdan o'tolmadingiz!", reply_markup=main_menu_users_btn(is_registered=True))
             await state.clear()
@@ -282,6 +286,12 @@ async def poll_answer_handler(answer: PollAnswer, state: FSMContext, bot: Bot):
             is_anonymous=False,
         )
     
+@router.callback_query(F.data.startswith("position_"))
+async def select_position(callback_query: CallbackQuery, state: FSMContext):
+    await state.update_data(position=callback_query.data.split("_")[1])
+    await callback_query.message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
+    await state.set_state(TeachersVacancyState.experience)
+
 @router.message(F.text, TeachersVacancyState.experience)
 async def select_experience(message: Message, state: FSMContext):
     await state.update_data(experience=message.text)
@@ -324,6 +334,7 @@ async def select_why_choice_us(message: Message, state: FSMContext):
         working_time=state_data['working_time'],
         sertificates=state_data.get('sertificates', []),
         experience=state_data['experience'],
+        position=state_data['position'],
         last_work_place=state_data['last_work_place'],
         why_leave_work=state_data['why_leave_work'],
         last_work_place_phone=state_data['last_work_place_phone'],

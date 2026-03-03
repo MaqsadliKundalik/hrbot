@@ -23,6 +23,7 @@ class TeachersVacancyState(StatesGroup):
     sertificate_name = State()
     sertificate_ball = State()
     sertificate_file = State()
+    position = State()
     experience = State()
     last_work_place = State()
     why_leave_work = State()
