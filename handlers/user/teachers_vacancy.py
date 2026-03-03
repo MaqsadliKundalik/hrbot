@@ -1,4 +1,3 @@
-from token import AWAIT
 from aiogram.types import ReplyKeyboardRemove
 from aiogram import Router, F, Bot
 from aiogram.types import Message, PollAnswer, ReplyKeyboardRemove, CallbackQuery
