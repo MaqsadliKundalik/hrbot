@@ -33,7 +33,7 @@ async def back(message: Message, state: FSMContext):
 @router.message(GetSertificateFIleState.tg_id, F.text.isdigit())
 async def get_sertificate_file(message: Message, state: FSMContext):
     tg_id = int(message.text)
-    user = await TgUser.get(tg_id=tg_id)
+    user = await TgUser.get_or_none(tg_id=tg_id)
     if not user:
         await message.answer("Bunday foydalanuvchi topilmadi")
         return
