@@ -1,14 +1,3 @@
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
-import openpyxl.xml._functions_overloads
 from aiogram.types import ReplyKeyboardRemove
 from aiogram import Router, F, Bot
 from aiogram.types import Message, PollAnswer, ReplyKeyboardRemove, CallbackQuery
