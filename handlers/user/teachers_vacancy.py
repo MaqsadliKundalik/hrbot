@@ -82,7 +82,7 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
             await state.set_state(TeachersVacancyState.salary)
         case TeachersVacancyState.confirm:
             await message.answer("Nega aynan bizni tanladingiz?", reply_markup=back_btn)
-            await state.set_state(AdminsVacancyState.why_choice_us)
+            await state.set_state(TeachersVacancyState.why_choice_us)
         case __:
             await message.answer("Orqaga qaytildi!!", reply_markup=main_menu_users_btn(is_registered=True))
             await state.clear()

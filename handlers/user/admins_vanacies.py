@@ -129,9 +129,9 @@ Nega aynan bizni tanladingiz?: {message.text}
 
 Ma'lumotlaringiz to'g'riligini tasdiqlang.
     """, reply_markup=confirm_btn)
-    await state.set_state(TeachersVacancyState.confirm)
+    await state.set_state(AdminsVacancyState.confirm)
 
-@router.message(TeachersVacancyState.confirm)
+@router.message(AdminsVacancyState.confirm)
 async def confirm(message: Message, state: FSMContext):
     if message.text == "Ha":
         state_data = await state.get_data()
