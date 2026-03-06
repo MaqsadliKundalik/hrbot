@@ -37,6 +37,10 @@ async def admins_vanacies(message: Message, state: FSMContext):
         case AdminsVacancyState.why_choice_us:
             await message.answer("Oxirgi ish joyingiz telefon raqami?", reply_markup=back_btn)
             await state.set_state(AdminsVacancyState.last_work_place_phone)
+        case AdminsVacancyState.confirm:
+            await message.answer("Nega aynan bizni tanladingiz?", reply_markup=back_btn)
+            await state.set_state(AdminsVacancyState.why_choice_us)
+
 
 @router.message(F.text == "Adminlarga", IsRegisteredUser())
 async def admins_vanacies_start(message: Message, state: FSMContext):
@@ -110,27 +114,50 @@ async def admins_vanacies_last_work_place_phone(message: Message, state: FSMCont
 
 @router.message(F.text, AdminsVacancyState.why_choice_us)
 async def admins_vanacies_why_choice_us(message: Message, state: FSMContext):
-    state_data = await state.get_data()
-    user = await TgUser.get_or_none(tg_id=message.from_user.id)
-    await AdminsResume.create(
-        user=user,
-        job=state_data["vacancy_type"],
-        working_time=state_data["working_time"],
-        foreign_language=state_data["foreign_language"],
-        foreign_language_level=state_data["foreign_language_level"],
-        experience=state_data["experience"],
-        last_work_place=state_data["last_work_place"],
-        why_leave_work=state_data["why_leave_work"],
-        last_work_place_phone=state_data["last_work_place_phone"],
-        why_choice_us=message.text,
-    )
-    last_text = await VacanciesText.get_or_none(name=state_data["vacancy_type"])
-    if last_text and len(last_text.last_text.strip()) > 5:
-        await message.answer(last_text.last_text, parse_mode="HTML", reply_markup=main_menu_users_btn(is_registered=True))
-    else:
-        await message.answer("""
-Sabr bilan shu joyigacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
+    await message.answer(f"""
+Ma'lumotlaringiz:
 
-Tez orada siz bilan bog'lanamiz!
-    """, reply_markup=main_menu_users_btn(is_registered=True))
-    await state.clear()
+Kasb: {state_data["vacancy_type"]}
+Ish vaqti: {state_data["working_time"]}
+Xorijiy til: {state_data["foreign_language"]}
+Til darajangiz: {state_data["foreign_language_level"]}
+Tajriba: {state_data["experience"]}
+Oxirgi ish joyi: {state_data['last_work_place']}
+Oxirgi ish joyidan ketish sababi: {state_data['why_leave_work']}
+Oxirgi ish joyi telefon raqami: {state_data['last_work_place_phone']}
+Nega aynan bizni tanladingiz?: {message.text}
+
+Ma'lumotlaringiz to'g'riligini tasdiqlang.
+    """, reply_markup=confirm_btn)
+    await state.set_state(TeachersVacancyState.confirm)
+
+@router.message(TeachersVacancyState.confirm)
+async def confirm(message: Message, state: FSMContext):
+    if message.text == "Ha":
+        state_data = await state.get_data()
+        user = await TgUser.get_or_none(tg_id=message.from_user.id)
+        await AdminsResume.create(
+            user=user,
+            job=state_data["vacancy_type"],
+            working_time=state_data["working_time"],
+            foreign_language=state_data["foreign_language"],
+            foreign_language_level=state_data["foreign_language_level"],
+            experience=state_data["experience"],
+            last_work_place=state_data["last_work_place"],
+            why_leave_work=state_data["why_leave_work"],
+            last_work_place_phone=state_data["last_work_place_phone"],
+            why_choice_us=message.text,
+        )
+        last_text = await VacanciesText.get_or_none(name=state_data["vacancy_type"])
+        if last_text and len(last_text.last_text.strip()) > 5:
+            await message.answer(last_text.last_text, parse_mode="HTML", reply_markup=main_menu_users_btn(is_registered=True))
+        else:
+            await message.answer("""
+    Sabr bilan shu joyigacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
+
+    Tez orada siz bilan bog'lanamiz!
+        """, reply_markup=main_menu_users_btn(is_registered=True))
+        await state.clear()
+    else:
+        await message.answer("Ma'lumotlarni yuborish bekor qilindi!", reply_markup=main_menu_users_btn(is_registered=True))
+        await state.clear()

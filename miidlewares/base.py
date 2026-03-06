@@ -10,7 +10,7 @@ class LongMessageMiddleware(BaseMiddleware):
         event: Message,
         data: Dict[str, Any]
     ) -> Any:
-        if isinstance(event.message, Message) and event.message.from_user.id not in ADMINS and event.message.text and len(event.message.text) > 100:
-            await event.message.answer("Xabar 100 ta belgidan oshmasligi kerak.")
+        if isinstance(event.message, Message) and event.message.from_user.id not in ADMINS and event.message.text and len(event.message.text) > 255:
+            await event.message.answer("Xabar 255 ta belgidan oshmasligi kerak.")
             return
         return await handler(event, data)

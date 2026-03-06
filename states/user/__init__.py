@@ -24,12 +24,16 @@ class TeachersVacancyState(StatesGroup):
     sertificate_ball = State()
     sertificate_file = State()
     position = State()
+    are_you_student = State()
+    university = State()
     experience = State()
     last_work_place = State()
     why_leave_work = State()
     last_work_place_phone = State()
     salary = State()
     why_choice_us = State()
+    confirm = State()
+
 
     ready = State()
     quizs = State()
@@ -44,3 +48,4 @@ class AdminsVacancyState(StatesGroup):
     why_leave_work = State()
     last_work_place_phone = State()
     why_choice_us = State()
+    confirm = State()

@@ -152,12 +152,12 @@ async def generate_report() -> io.BytesIO:
 
     teacher_headers = [
         "№", "Rasm", "Ism Familiya", "Telegram ID", "Telefon",
-        "Filial", "Tug'ilgan sana", "Tug'ilgan joyi", "Yashash manzili", "Tajriba", "Lavozim", "Ish vaqti", "Maosh (so'm)",
+        "Filial", "Tug'ilgan sana", "Tug'ilgan joyi", "Yashash manzili", "Universitet", "Tajriba", "Lavozim", "Ish vaqti", "Maosh (so'm)",
         "Sertifikatlar",
         "Oxirgi ish joyi", "Ketish sababi", "Tel (ish joyi)",
         "Nega bizni tanladi", "Bizni qayerdan topdi", "Ariza sanasi",
     ]
-    teacher_widths = [4, IMG_COL_WIDTH, 24, 16, 18, 15, 14, 20, 20, 13, 13, 13, 16, 32, 22, 22, 18, 25, 20, 18]
+    teacher_widths = [4, IMG_COL_WIDTH, 24, 16, 18, 15, 14, 20, 20, 30, 13, 13, 13, 16, 32, 22, 22, 18, 25, 20, 18]
 
     teachers = await TeacherResume.all().prefetch_related("user").order_by("subject", "id")
     teacher_groups: dict[str, list] = defaultdict(list)
@@ -193,6 +193,7 @@ async def generate_report() -> io.BytesIO:
                 str(user.birth_date) if user.birth_date else "—",
                 user.born_address or "—",
                 user.live_address or "—",
+                resume.university,
                 resume.experience,
                 resume.position,
                 resume.working_time,

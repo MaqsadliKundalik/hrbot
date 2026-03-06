@@ -33,6 +33,7 @@ class TeacherResume(Model):
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField('models.TgUser', related_name='resumes')
     subject = fields.CharField(max_length=100)
+    university = fields.CharField(max_length=255)
     experience = fields.CharField(max_length=100)
     working_time = fields.CharField(max_length=100)
     position = fields.CharField(max_length=20)
@@ -42,6 +43,7 @@ class TeacherResume(Model):
     why_leave_work = fields.CharField(max_length=100)
     last_work_place_phone = fields.CharField(max_length=100)
     why_choice_us = fields.CharField(max_length=100)
+
 
     created_at = fields.DatetimeField(default=utcnow)
     

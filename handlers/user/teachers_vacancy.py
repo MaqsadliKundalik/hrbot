@@ -1,3 +1,14 @@
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
+import openpyxl.xml._functions_overloads
 from aiogram.types import ReplyKeyboardRemove
 from aiogram import Router, F, Bot
 from aiogram.types import Message, PollAnswer, ReplyKeyboardRemove, CallbackQuery
@@ -52,9 +63,19 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
         case TeachersVacancyState.position:
             await state.set_state(TeachersVacancyState.has_sertificate)
             await message.answer("Yana sertifikatingiz bormi?", reply_markup=confirm_btn)
-        case TeachersVacancyState.experience:
+        case TeachersVacancyState.are_you_student:
             await state.set_state(TeachersVacancyState.position)
             await message.answer("Ustozlar vakansiyasi bo'yicha lavozimni tanlang.", reply_markup=teacher_position_btn)
+        case TeachersVacancyState.university:
+            await state.set_state(TeachersVacancyState.are_you_student)
+            await message.answer("Siz talabamisiz?", reply_markup=confirm_btn)
+        case TeachersVacancyState.experience:
+            if state_data.get("are_you_student") == "Ha":
+                await message.answer("O’qiyotgan oliygohingiz, yo’nalishingiz va kursingizni kiriting?", reply_markup=back_btn)
+                await state.set_state(TeachersVacancyState.university)
+            else:
+                await message.answer("Bitirgan oliygohingizni kiriting?", reply_markup=back_btn)
+                await state.set_state(TeachersVacancyState.university)
         case TeachersVacancyState.last_work_place:
             await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
             await state.set_state(TeachersVacancyState.experience)
@@ -70,6 +91,9 @@ async def teachers_vacancy_back(message: Message, state: FSMContext):
         case TeachersVacancyState.why_choice_us:
             await message.answer("Bizdan qancha oylik maosh kutayapsiz?", reply_markup=back_btn)
             await state.set_state(TeachersVacancyState.salary)
+        case TeachersVacancyState.confirm:
+            await message.answer("Nega aynan bizni tanladingiz?", reply_markup=back_btn)
+            await state.set_state(AdminsVacancyState.why_choice_us)
         case __:
             await message.answer("Orqaga qaytildi!!", reply_markup=main_menu_users_btn(is_registered=True))
             await state.clear()
@@ -292,8 +316,24 @@ async def select_position(callback_query: CallbackQuery, state: FSMContext):
         "Ustozlar vakansiyasi bo'yicha lavozimni tanlang.\n\n" + callback_query.data.split("_")[1],
         reply_markup=None
     )
+    await state.set_state(TeachersVacancyState.are_you_student)
+    await callback_query.message.answer("Siz talabamisiz?", reply_markup=back_btn)
+
+@router.message(F.text, TeachersVacancyState.are_you_student)
+async def select_are_you_student(message: Message, state: FSMContext):
+    await state.update_data(are_you_student=message.text)
+    if message.text == "Ha":
+        await message.answer("O’qiyotgan oliygohingiz, yo’nalishingiz va kursingizni kiriting?", reply_markup=back_btn)
+        await state.set_state(TeachersVacancyState.university)
+    else:
+        await message.answer("Bitirgan oliygohingizni kiriting?", reply_markup=back_btn)
+        await state.set_state(TeachersVacancyState.university)
+
+@router.message(F.text, TeachersVacancyState.university)
+async def select_university(message: Message, state: FSMContext):
+    await state.update_data(university=message.text)
+    await message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
     await state.set_state(TeachersVacancyState.experience)
-    await callback_query.message.answer("Sohadagi tajribangiz necha yil?", reply_markup=back_btn)
 
 @router.message(F.text, TeachersVacancyState.experience)
 async def select_experience(message: Message, state: FSMContext):
@@ -330,28 +370,54 @@ async def select_salary(message: Message, state: FSMContext):
 
 @router.message(F.text, TeachersVacancyState.why_choice_us)
 async def select_why_choice_us(message: Message, state: FSMContext):
-    state_data = await state.get_data()
-    user = await TgUser.get_or_none(tg_id=message.from_user.id)
-    await TeacherResume.create(
-        subject=state_data['subject_name'],
-        working_time=state_data['working_time'],
-        sertificates=state_data.get('sertificates', []),
-        experience=state_data['experience'],
-        position=state_data['position'],
-        last_work_place=state_data['last_work_place'],
-        why_leave_work=state_data['why_leave_work'],
-        last_work_place_phone=state_data['last_work_place_phone'],
-        salary=state_data['salary'],
-        why_choice_us=message.text,
-        user=user
-    )
-    last_text = await VacanciesText.get_or_none(name=state_data["subject_name"])
-    if last_text and len(last_text.last_text.strip()) > 5:
-        await message.answer(last_text.last_text, parse_mode="HTML", reply_markup=main_menu_users_btn(is_registered=True))
-    else:
-        await message.answer("""
-Sabr bilan shu joygacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
+    await message.answer(f"""
+Siz kiritgan ma'lumotlar:
 
-Tez orada siz bilan bog'lanamiz!
-        """, reply_markup=main_menu_users_btn(is_registered=True))
-    await state.clear()
+Fan: {state_data['subject_name']}
+Ish vaqti: {state_data['working_time']}
+Sertifikatlar:{' | '.join([ser['name'] + ' ' + ser['ball'] for ser in state_data.get('sertificates', [])])}
+Oliygoh: {state_data.get('university', '')}
+Tajriba: {state_data['experience']}
+Lavozim: {state_data['position']}
+Oxirgi ish joyi: {state_data['last_work_place']}
+Oxirgi ish joyidan ketish sababi: {state_data['why_leave_work']}
+Oxirgi ish joyi telefon raqami: {state_data['last_work_place_phone']}
+Bizdan qancha oylik maosh kutayapsiz?: {state_data['salary']}
+Nega aynan bizni tanladingiz?: {message.text}
+
+Ma'lumotlaringiz to'g'riligini tasdiqlang.
+    """, reply_markup=confirm_btn)
+    await state.set_state(TeachersVacancyState.confirm)
+
+@router.message(TeachersVacancyState.confirm)
+async def confirm(message: Message, state: FSMContext):
+    if message.text == "Ha":
+        state_data = await state.get_data()
+        user = await TgUser.get_or_none(tg_id=message.from_user.id)
+        await TeacherResume.create(
+            subject=state_data['subject_name'],
+            working_time=state_data['working_time'],
+            sertificates=state_data.get('sertificates', []),
+            university=state_data.get('university', ''),
+            experience=state_data['experience'],
+            position=state_data['position'],
+            last_work_place=state_data['last_work_place'],
+            why_leave_work=state_data['why_leave_work'],
+            last_work_place_phone=state_data['last_work_place_phone'],
+            salary=state_data['salary'],
+            why_choice_us=message.text,
+            user=user
+        )
+        last_text = await VacanciesText.get_or_none(name=state_data["subject_name"])
+        if last_text and len(last_text.last_text.strip()) > 5:
+            await message.answer(last_text.last_text, parse_mode="HTML", reply_markup=main_menu_users_btn(is_registered=True))
+        else:
+            await message.answer("""
+    Sabr bilan shu joygacha kelganingiz uchun raxmat! Siz birinchi bosqichdan muvaffaqiyatli o'tdingiz.
+
+    Tez orada siz bilan bog'lanamiz!
+            """, reply_markup=main_menu_users_btn(is_registered=True))
+        await state.clear()
+    else:
+        await message.answer("Ma'lumotlarni yuborish bekor qilindi!", reply_markup=main_menu_users_btn(is_registered=True))
+        await state.clear()
