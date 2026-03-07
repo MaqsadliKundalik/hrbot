@@ -114,6 +114,7 @@ async def admins_vanacies_last_work_place_phone(message: Message, state: FSMCont
 
 @router.message(F.text, AdminsVacancyState.why_choice_us)
 async def admins_vanacies_why_choice_us(message: Message, state: FSMContext):
+    state_data = await state.get_data()
     await message.answer(f"""
 Ma'lumotlaringiz:
 
@@ -133,7 +134,7 @@ Ma'lumotlaringiz to'g'riligini tasdiqlang.
 
 @router.message(AdminsVacancyState.confirm)
 async def confirm(message: Message, state: FSMContext):
-    if message.text == "Ha":
+    if message.text.lower() == "ha":
         state_data = await state.get_data()
         user = await TgUser.get_or_none(tg_id=message.from_user.id)
         await AdminsResume.create(

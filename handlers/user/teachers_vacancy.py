@@ -306,12 +306,12 @@ async def select_position(callback_query: CallbackQuery, state: FSMContext):
         reply_markup=None
     )
     await state.set_state(TeachersVacancyState.are_you_student)
-    await callback_query.message.answer("Siz talabamisiz?", reply_markup=back_btn)
+    await callback_query.message.answer("Siz talabamisiz?", reply_markup=confirm_btn)
 
 @router.message(F.text, TeachersVacancyState.are_you_student)
 async def select_are_you_student(message: Message, state: FSMContext):
     await state.update_data(are_you_student=message.text)
-    if message.text == "Ha":
+    if message.text.lower() == "ha":
         await message.answer("O’qiyotgan oliygohingiz, yo’nalishingiz va kursingizni kiriting?", reply_markup=back_btn)
         await state.set_state(TeachersVacancyState.university)
     else:
@@ -359,6 +359,7 @@ async def select_salary(message: Message, state: FSMContext):
 
 @router.message(F.text, TeachersVacancyState.why_choice_us)
 async def select_why_choice_us(message: Message, state: FSMContext):
+    state_data = await state.get_data()
     await message.answer(f"""
 Siz kiritgan ma'lumotlar:
 
@@ -380,7 +381,7 @@ Ma'lumotlaringiz to'g'riligini tasdiqlang.
 
 @router.message(TeachersVacancyState.confirm)
 async def confirm(message: Message, state: FSMContext):
-    if message.text == "Ha":
+    if message.text.lower() == "ha":
         state_data = await state.get_data()
         user = await TgUser.get_or_none(tg_id=message.from_user.id)
         await TeacherResume.create(
